@@ -49,6 +49,40 @@
   .ph-base { background: #95a5a6; } .ph-hyp { background: #d35400; } .ph-str { background: #27ae60; } .ph-taper { background: #2980b9; } .ph-comp { background: #7d3c98; }
   .legend { font-size: 12px; color: #555; padding: 0 16px 4px; background:#fff; }
   .legend span { display:inline-block; width:10px; height:10px; border-radius:2px; margin:0 3px 0 10px; vertical-align:middle; }
+  .daytabs { display: none; }
+  @media (max-width: 700px) {
+    header { padding: 10px 12px; }
+    header h1 { font-size: 17px; }
+    .ctl { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .ctl label { display: block; font-size: 12px; margin: 0 0 2px; color: #ccc; }
+    .ctl input[type=date] { width: 100%; font-size: 16px; }
+    .btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 8px; }
+    .btns button { margin: 0; font-size: 14px; padding: 8px 4px; }
+    .bar { position: sticky; top: 0; z-index: 5; padding: 6px 10px; }
+    .bar button { padding: 10px 16px; }
+    .bar .wk { font-size: 15px; }
+    .strip { padding: 6px 10px; }
+    .daytabs { display: flex; gap: 4px; padding: 8px 10px; background: #fff; border-bottom: 1px solid var(--line); }
+    .daytabs button { flex: 1; font-size: 13px; padding: 8px 0; border: 1px solid #ccc; border-radius: 6px; background: #fff; line-height: 1.2; }
+    .daytabs button.has { border-bottom: 4px solid var(--hi); }
+    .daytabs button.haslow { border-bottom: 4px solid var(--lo); }
+    .daytabs button.hascomp { border-bottom: 4px solid var(--comp); }
+    .daytabs button.sel { background: #222; color: #fff; border-color: #222; }
+    .week { padding: 10px; }
+    .week .day { display: none; }
+    .week .day.sel { display: block; }
+    .day h3 { font-size: 17px; }
+    .card .t { font-size: 17px; }
+    .card .tag { font-size: 12px; }
+    .card summary { font-size: 15px; padding: 4px 0; }
+    .card h4 { font-size: 13px; }
+    .card ul { font-size: 16px; padding-left: 20px; }
+    .card li { margin-bottom: 6px; line-height: 1.35; }
+    .card select { font-size: 16px; padding: 4px; }
+    .card .move { font-size: 15px; }
+    .card { cursor: default; }
+    footer { font-size: 15px; }
+  }
   footer { padding: 8px 16px 30px; font-size: 13px; color: #444; }
   footer details { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; }
   footer li { margin-bottom: 4px; }
@@ -58,13 +92,15 @@
 <body>
 <header>
   <h1>Speed + Hypertrophy Plan</h1>
-  <label for="contest">Contest date:</label>
-  <input type="date" id="contest">
-  <label for="start" style="margin-left:10px">Plan start:</label>
-  <input type="date" id="start">
-  <button id="todayBtn">This week</button>
-  <button id="shareBtn">Share link</button>
-  <button id="resetBtn" title="Undo day changes for this week">Reset week</button>
+  <span class="ctl">
+    <span><label for="contest">Contest date:</label> <input type="date" id="contest"></span>
+    <span><label for="start">Plan start:</label> <input type="date" id="start"></span>
+  </span>
+  <span class="btns">
+    <button id="todayBtn">This week</button>
+    <button id="shareBtn">Share link</button>
+    <button id="resetBtn" title="Undo day changes for this week">Reset week</button>
+  </span>
   <div id="shareBox"><input id="shareUrl" readonly></div>
 </header>
 
@@ -74,6 +110,7 @@
   <button id="next" aria-label="Next week">&#9654;</button>
 </div>
 <div id="strip" class="strip"></div>
+<div id="daytabs" class="daytabs"></div>
 <div id="notes"></div>
 <div id="week" class="week"></div>
 
@@ -319,6 +356,9 @@
   var contestStr = params.get("contest") || load("shPlan.contest", "");
   var startStr = params.get("start") || load("shPlan.start", "") || iso(monday(new Date()));
   var overrides = load("shPlan.overrides", {});
+  var mq = window.matchMedia("(max-width: 700px)");
+  var selDay = (new Date().getDay() + 6) % 7;
+  if (mq.addEventListener) mq.addEventListener("change", function () { render(); });
   var viewStart = monday(new Date());
 
   if (viewStart < parseISO(startStr)) viewStart = parseISO(startStr);
@@ -343,9 +383,9 @@
     save("shPlan.contest", contestStr);
     syncUrl(); render();
   });
-  document.getElementById("prev").onclick = function () { viewStart = addDays(viewStart, -7); render(); };
-  document.getElementById("next").onclick = function () { viewStart = addDays(viewStart, 7); render(); };
-  document.getElementById("todayBtn").onclick = function () { viewStart = monday(new Date()); if (viewStart < parseISO(startStr)) viewStart = parseISO(startStr); render(); };
+  document.getElementById("prev").onclick = function () { viewStart = addDays(viewStart, -7); selDay = 0; render(); };
+  document.getElementById("next").onclick = function () { viewStart = addDays(viewStart, 7); selDay = 0; render(); };
+  document.getElementById("todayBtn").onclick = function () { selDay = (new Date().getDay() + 6) % 7; viewStart = monday(new Date()); if (viewStart < parseISO(startStr)) viewStart = parseISO(startStr); render(); };
   document.getElementById("resetBtn").onclick = function () {
     var w = iso(viewStart);
     Object.keys(overrides).forEach(function (key) { if (key.indexOf(w + "|") === 0) delete overrides[key]; });
@@ -380,9 +420,11 @@
       b.appendChild(el("br"));
       b.appendChild(document.createTextNode(MONTHS[ws.getMonth()] + " " + ws.getDate()));
       b.title = pl.label;
-      (function (d) { b.onclick = function () { viewStart = d; render(); }; })(ws);
+      (function (d) { b.onclick = function () { viewStart = d; selDay = 0; render(); }; })(ws);
       strip.appendChild(b);
     }
+    var cur = strip.querySelector(".cur");
+    if (cur) strip.scrollLeft = cur.offsetLeft - strip.clientWidth / 2 + cur.offsetWidth / 2;
   }
 
   function render() {
@@ -393,6 +435,7 @@
     if (!contestStr) {
       document.getElementById("phaseLabel").textContent = "";
       document.getElementById("strip").innerHTML = "";
+      document.getElementById("daytabs").innerHTML = "";
       var m = el("div", "empty", "Enter the contest date above to build the plan.");
       weekEl.appendChild(m); return;
     }
@@ -418,9 +461,19 @@
     function highCount(d) { return byDay[d].filter(function (x) { return x.s.type === "high" || x.s.type === "comp"; }).length; }
 
     var todayIso = iso(new Date());
+    var tabs = document.getElementById("daytabs"); tabs.innerHTML = "";
+    for (var t = 0; t < 7; t++) {
+      var types = byDay[t].map(function (x) { return x.s.type; });
+      var tc = types.indexOf("comp") >= 0 ? " hascomp" : types.indexOf("high") >= 0 ? " has" : types.length ? " haslow" : "";
+      var tb = el("button", (t === selDay ? "sel" : "") + tc);
+      tb.appendChild(document.createTextNode(DAYS[t])); tb.appendChild(el("br"));
+      tb.appendChild(document.createTextNode(addDays(viewStart, t).getDate()));
+      (function (i) { tb.onclick = function () { selDay = i; render(); }; })(t);
+      tabs.appendChild(tb);
+    }
     for (var d = 0; d < 7; d++) {
       var date = addDays(viewStart, d);
-      var col = el("div", "day" + (iso(date) === todayIso ? " today" : ""));
+      var col = el("div", "day" + (iso(date) === todayIso ? " today" : "") + (d === selDay ? " sel" : ""));
       col.dataset.day = d;
       col.appendChild(el("h3", null, fmt(date)));
       if (highCount(d) > 1) col.appendChild(el("div", "warn", "⚠ Two high sessions on one day. Move one."));
@@ -450,6 +503,7 @@
     if (x.moved) c.appendChild(el("div", "moved", "Moved from " + DAYS[s.day]));
 
     var det = el("details");
+    if (mq.matches) det.open = true;
     det.appendChild(el("summary", null, "Show session"));
     s.blocks.forEach(function (b) {
       if (b.h) det.appendChild(el("h4", null, b.h));
@@ -467,7 +521,7 @@
       if (i === (x.key in overrides ? overrides[x.key] : s.day)) o.selected = true;
       sel.appendChild(o);
     });
-    sel.addEventListener("change", function () { setDay(x.key, +sel.value); });
+    sel.addEventListener("change", function () { selDay = +sel.value; setDay(x.key, +sel.value); });
     mv.appendChild(sel);
     c.appendChild(mv);
     return c;
