@@ -82,6 +82,8 @@
     <summary><b>How to use / key rules</b></summary>
     <ul>
       <li>Built for short sprints (60 m / 100 m): acceleration and top speed every week; speed endurance stays short (60–80 m).</li>
+      <li>Gym-based: Mon and Fri use the 20 m floor, 10 m slope, sled and curved treadmill. Wed is the one outdoor day for real flying sprints; each Wed card has a treadmill fallback.</li>
+      <li>Curved treadmill: drive it yourself, build for 2–3 s then go all-out; stop the rep the moment form breaks.</li>
       <li>The colored strip shows the whole progression: Base &rarr; Hyp (muscle) &rarr; Str (strength/power) &rarr; Taper &rarr; Meet. Tap any week to jump to it.</li>
       <li>Enter the contest date. The plan counts back from it to the plan start (defaults to this week): up to a 6-week hypertrophy block (shortened if time is tight) &rarr; 3 weeks strength/power &rarr; taper week &rarr; contest week. Extra time before the block is "Base".</li>
       <li>Did a session on a different day? Use the <b>Day</b> menu on the card (or drag it on a computer). Changes are saved on this device only.</li>
@@ -115,7 +117,9 @@
   function fmt(d) { return DAYS[(d.getDay() + 6) % 7] + " " + MONTHS[d.getMonth()] + " " + d.getDate(); }
 
   // ---------- plan content ----------
-  var WARMUP = "Warm-up 15–20 min: jog 400 m, leg swings, A-march, A-skip, ankle dribbles, 2 × 20 m straight-leg bounds, 3 × 30 m build-ups";
+  var WARMUP = "Warm-up 15–20 min: 5 min easy bike or jog, leg swings, A-march, A-skip, ankle dribbles, 2 × 20 m straight-leg bounds, 3 × 20 m build-ups";
+  var GYM = "Gym", OUT = "Outdoor (track)";
+  var NO_OUT = "Can't get outside this week? Do it on the curved treadmill: 2 × 5 s build-ups, then 4 × 6 s max effort, 4 min rest";
 
   var HYP = {
     0: { pct: .7, rir: "2–3 RIR", spr: .75, plyo: "box", heavy: 0, nordic: "2 × 4", label: "Base (before the block): moderate volume, learn the lifts" },
@@ -126,6 +130,10 @@
     5: { pct: 1.1, rir: "0–1 RIR on last set", spr: 1, plyo: "bounds", heavy: 6, nordic: "3 × 5", label: "peak volume" },
     6: { pct: .5, rir: "3 RIR", spr: .7, plyo: "inplace", heavy: 0, nordic: "2 × 3", label: "deload + retest" }
   };
+
+  function tueTempo(scale) { return "Air bike or rower tempo: 2 × " + Math.max(5, Math.round(8 * scale)) + " × (30 s smooth @ RPE 5–6 / 30 s easy), 3 min between sets. Option: curved treadmill 8–10 × 15 s @ 65–70%, 45 s walk"; }
+  function thuTempo(scale) { return "Rower or air bike: " + Math.max(4, Math.round(8 * scale)) + " × (1 min @ RPE 5 / 1 min easy)"; }
+  var MOBILITY = "Hurdle mobility: 3 passes over 6–8 mini hurdles";
 
   function hypWeek(h) {
     var p = HYP[h];
@@ -145,90 +153,91 @@
       bounds: "Drop-to-stick 2 × 4 · depth jump 12–18 in 3 × 4 · alternate-leg bounds 3 × 20 m"
     }[p.plyo];
 
+    var curve = h === 1 ? [] : ["Curved treadmill max sprints: " + (h === 6 ? 2 : 3) + " × 6 s — 4 min rest (top-speed exposure)"];
     var friTrack = p.heavy
-      ? ["Slope starts: " + r(4) + " × 15 m uphill — walk down + 2 min",
-         "Heavy sled: " + p.heavy + " × 15 m (~40–50% slower than free) — 3–4 min rest",
-         "Free contrast: 3 × 20 m from 3-point — 4 min rest (should feel light and fast)"]
-      : ["Slope starts: " + r(6) + " × 15 m uphill — walk down + 2 min",
-         "Free starts: " + r(3) + " × 20 m from 3-point — 4 min rest"];
+      ? ["Slope starts: " + r(4) + " × 10 m uphill — walk down + 90 s",
+         "Heavy sled pull (harness) on turf: " + p.heavy + " × 10–15 m (~40–50% slower than free) — 3–4 min rest",
+         "Free contrast: 2 × 20 m on the floor from 3-point — 3 min (should feel light and fast)"].concat(curve)
+      : ["Slope starts: " + r(6) + " × 10 m uphill — walk down + 90 s",
+         "Free starts on the floor: " + r(3) + " × 20 m from 3-point — 3 min rest"].concat(curve);
 
     var wedTrack = ["Rhythm: mini-hurdle / wicket runs × 4",
       "Flying 20 m off a 30 m build: " + Math.max(2, r(4)) + " reps — 6–8 min rest. TIME EVERY REP (weekly speed check)"];
     if (h >= 3 && h <= 5) wedTrack.push("Sprint-float-sprint 20-20-20 m × 2 — 8 min rest");
+    wedTrack.push(NO_OUT);
 
-    var testNote = (h === 1) ? ["BASELINE TESTS this week: flying 20 m (Wed), 10 m start + CMJ + body weight (Mon), trap-bar estimated 3RM (Mon)"]
-                 : (h === 6) ? ["RETEST Friday or next Monday: flying 20 m, 10 m start, CMJ, body weight"] : [];
+    var testNote = (h === 1) ? ["BASELINE TESTS this week: flying 20 m (Wed outdoor), 10 m start + CMJ + body weight (Mon), trap-bar estimated 3RM (Mon)"]
+                 : (h === 6) ? ["RETEST Friday or next Monday: flying 20 m (outdoor), 10 m start, CMJ, body weight"] : [];
 
     return [
-      { id: "mon", day: 0, type: "high", title: "Acceleration + Lift A", blocks: [
-        { h: "Track", items: testNote.concat([WARMUP,
-          "Slope starts: " + r(4) + " × 15 m uphill from 3-point — walk down + 2 min",
-          "Light sled: " + r(4) + " × 20 m (~10% slower than free) — 3 min rest",
-          "Free starts: " + r(4) + " × 30 m from 3-point — 4 min rest"]) },
+      { id: "mon", day: 0, type: "high", loc: GYM, title: "Acceleration + Lift A", blocks: [
+        { h: "Speed", items: testNote.concat([WARMUP,
+          "Slope starts: " + r(5) + " × 10 m uphill from 3-point — walk down + 90 s",
+          "Light sled push or pull: " + r(4) + " × 15 m (~10% slower than free) — 3 min rest",
+          "Free starts on the floor: " + r(4) + " × 20 m from 3-point — 3 min rest"]) },
         { h: "Plyos", items: [plyoMon] },
         { h: "Lift A (" + p.rir + " on isolation)", items: [
           "Trap-bar deadlift " + cmp(4) + " × 4–5 @ ~75–82%, 2–3 RIR — stop if bar slows",
           "Rear-foot-elevated split squat " + cmp(3) + " × 8/leg, 2 RIR (slight forward lean)",
-          "Barbell hip thrust " + iso_(3) + " × 8–10",
+          "Hip thrust " + iso_(3) + " × 8–10",
           "Cable standing knee drive " + iso_(3) + " × 10/leg",
           "Copenhagen plank " + iso_(3) + " × 20–30 s/side",
           "Straight-leg calf raise 2 × 10, 3-sec lowering"] }
       ]},
-      { id: "tue", day: 1, type: "low", title: "Tempo + Upper A", blocks: [
-        { h: "Track", items: ["Tempo on grass: 2 × " + Math.max(4, Math.round(7 * p.spr)) + " × 100 m @ 65–70% — 45 s walk, 3 min between sets"] },
+      { id: "tue", day: 1, type: "low", loc: GYM, title: "Bike/Row Tempo + Upper A", blocks: [
+        { h: "Conditioning (easy)", items: [tueTempo(p.spr)] },
         { h: "Upper A (1–2 RIR)", items: ["DB incline press " + up + " × 8–10", "Chest-supported row " + up + " × 10", "Pull-up " + up + " × 6–10", "DB lateral raise 2 × 12–15", "Dead bug 3 × 8/side · side plank 3 × 30 s"] }
       ]},
-      { id: "wed", day: 2, type: "high", title: "Max Velocity + Lift B", blocks: [
-        { h: "Track", items: [WARMUP].concat(wedTrack) },
+      { id: "wed", day: 2, type: "high", loc: OUT, title: "Max Velocity (outdoor) + Lift B", blocks: [
+        { h: "Speed (outdoor)", items: [WARMUP].concat(wedTrack) },
         { h: "Plyos", items: [plyoWed] },
-        { h: "Lift B (fast, ~30 min)", items: [
+        { h: "Lift B in the gym (fast, ~30 min)", items: [
           "Trap-bar jump " + cmp(4) + " × 3 @ 20–30% of trap-bar max — max intent",
           "Single-leg RDL " + cmp(3) + " × 6/leg, 2–3 RIR",
           "Hanging knee raise (or ankle-weight psoas march) " + iso_(3) + " × 10–12",
-          "Cable/machine hip adduction " + iso_(3) + " × 12/leg",
+          "Adductor machine " + iso_(3) + " × 12",
           "Overhead backward med-ball throw 2 × 4 (4–6 kg)"] }
       ]},
-      { id: "thu", day: 3, type: "low", title: "Tempo + Upper B", blocks: [
-        { h: "Track", items: ["Tempo: " + Math.max(4, Math.round(6 * p.spr)) + " × 200 m @ 65% — 60–90 s walk", "Hurdle mobility: 3 passes over 8 hurdles"] },
+      { id: "thu", day: 3, type: "low", loc: GYM, title: "Bike/Row Tempo + Upper B", blocks: [
+        { h: "Conditioning (easy)", items: [thuTempo(p.spr), MOBILITY] },
         { h: "Upper B (1–2 RIR)", items: ["Seated DB shoulder press " + up + " × 8", "Single-arm row " + up + " × 10", "Dips or push-ups 2 × (2 short of failure)", "Curls 2 × 12 · triceps 2 × 12", "Pallof press 3 × 10/side · back-extension hold 2 × 30 s"] }
       ]},
-      { id: "fri", day: 4, type: "high", title: (p.heavy ? "Heavy Sled" : "Slope Starts") + " + Lift C (hamstrings)", blocks: [
-        { h: "Track", items: [WARMUP].concat(friTrack) },
+      { id: "fri", day: 4, type: "high", loc: GYM, title: (p.heavy ? "Heavy Sled" : "Slope Starts") + " + Lift C (hamstrings)", blocks: [
+        { h: "Speed", items: [WARMUP].concat(friTrack) },
         { h: "Plyos", items: ["Box jump 3 × 3 · skips for height 2 × 20 m"] },
         { h: "Lift C (" + p.rir + " on isolation)", items: [
           "Romanian deadlift " + cmp(4) + " × 6–8, 2 RIR — 1-sec pause at the stretch",
           "Seated leg curl " + iso_(3) + " × 10–12 — lean forward, 3-sec lowering",
-          "Nordic hamstring curl " + p.nordic + " (band-assist if needed)",
+          "Nordic hamstring curl " + p.nordic + " (band-assist if needed; GHD works too)",
           "Walking lunge or high step-up " + cmp(2) + " × 10/leg, 2 RIR",
-          "Cable/ankle-weight knee drive " + iso_(3) + " × 10–12/leg",
-          "45° back extension (glute bias) " + iso_(2) + " × 12–15"] }
+          "Cable knee drive " + iso_(3) + " × 10–12/leg",
+          "Back extension or reverse hyper (glute bias) " + iso_(2) + " × 12–15"] }
       ]}
     ];
   }
 
   function strengthWeek(n) {
     return [
-      { id: "mon", day: 0, type: "high", title: "Acceleration + Strength A", blocks: [
-        { h: "Track", items: [WARMUP, "Slope starts 4 × 15 m — walk down + 2 min", "Light sled 3 × 20 m — 3 min", "Free starts 4 × 30 m from 3-point — 4 min", "Race-model starts 2 × 40 m from blocks or 3-point — 5 min"] },
+      { id: "mon", day: 0, type: "high", loc: GYM, title: "Acceleration + Strength A", blocks: [
+        { h: "Speed", items: [WARMUP, "Slope starts 4 × 10 m — walk down + 90 s", "Light sled 3 × 15 m — 3 min", "Floor starts 5 × 20 m from 3-point (last 2 = race-model, timed) — 3–4 min"] },
         { h: "Plyos", items: ["Standing triple jump 4 × 2 · hurdle hops 4 × 5 · box jump 3 × 3"] },
         { h: "Strength A", items: ["Trap-bar deadlift 4 × 3 @ 85–88%, 2 RIR — stop if bar slows", "Rear-foot-elevated split squat 3 × 5/leg, 2 RIR", "Hip thrust 2 × 6, 1–2 RIR", "Cable knee drive 2 × 8/leg", "Copenhagen plank 2 × 20 s/side"] }
       ]},
-      { id: "tue", day: 1, type: "low", title: "Tempo + Upper A", blocks: [
-        { h: "Track", items: ["Tempo: 2 × 6 × 100 m @ 65–70% — 45 s walk"] },
+      { id: "tue", day: 1, type: "low", loc: GYM, title: "Bike/Row Tempo + Upper A", blocks: [
+        { h: "Conditioning (easy)", items: [tueTempo(.8)] },
         { h: "Upper A", items: ["DB incline press 2 × 6–8", "Chest-supported row 2 × 8", "Pull-up 2 × 6–8", "Core: dead bug, side plank"] }
       ]},
-      { id: "wed", day: 2, type: "high", title: "Max Velocity + Power", blocks: [
-        { h: "Track", items: [WARMUP, "Wicket runs × 4", (n >= 2 ? "Flying 30 m off 30 m build × 3" : "Flying 20 m off 30 m build × 4") + " — 8 min rest. TIME EVERY REP"] },
-        { h: "Plyos", items: ["Depth jump 12–18 in 3 × 4 · alternate-leg bounds 3 × 30 m"] },
-        { h: "Power B", items: ["Trap-bar jump 4 × 3 — max intent", "Single-leg RDL 2 × 5/leg", "Hanging knee raise 2 × 10", "Hip adduction 2 × 10/leg", "Med-ball overhead throw 2 × 4"] }
+      { id: "wed", day: 2, type: "high", loc: OUT, title: "Max Velocity + Short Speed Endurance (outdoor)", blocks: [
+        { h: "Speed (outdoor)", items: [WARMUP, "Wicket runs × 4", (n >= 2 ? "Flying 30 m off 30 m build × 3" : "Flying 20 m off 30 m build × 3") + " — 8 min rest. TIME EVERY REP", "Race-model starts 2 × 40 m from blocks or 3-point — 5 min", (n === 1 ? "2 × 60 m" : "2 × 80 m") + " @ 95% — 8–10 min rest", "Can't get outside? Curved treadmill: 3 × 6 s + 2 × 8 s max, 5–6 min rest"] },
+        { h: "Lift B in the gym", items: ["Trap-bar jump 4 × 3 — max intent", "Single-leg RDL 2 × 5/leg", "Hanging knee raise 2 × 10", "Adductor machine 2 × 10", "Med-ball overhead throw 2 × 4"] }
       ]},
-      { id: "thu", day: 3, type: "low", title: "Tempo + Upper B", blocks: [
-        { h: "Track", items: ["Tempo: 5 × 200 m @ 65% — 60–90 s walk", "Hurdle mobility"] },
+      { id: "thu", day: 3, type: "low", loc: GYM, title: "Bike/Row Tempo + Upper B", blocks: [
+        { h: "Conditioning (easy)", items: [thuTempo(.8), MOBILITY] },
         { h: "Upper B", items: ["DB shoulder press 2 × 6–8", "Single-arm row 2 × 8", "Pallof press 3 × 10/side"] }
       ]},
-      { id: "fri", day: 4, type: "high", title: "Short Speed Endurance + Strength C", blocks: [
-        { h: "Track", items: [WARMUP, "Slope starts 3 × 15 m", (n === 1 ? "3 × 60 m from 3-point" : "2 × 80 m + 1 × 60 m") + " @ 95% — 8–10 min rest (short-sprint speed endurance)"] },
-        { h: "Plyos", items: ["Box jump 3 × 3"] },
+      { id: "fri", day: 4, type: "high", loc: GYM, title: "Curve Speed Endurance + Strength C", blocks: [
+        { h: "Speed", items: [WARMUP, "Slope starts 3 × 10 m", "Curved treadmill: " + (n === 1 ? "3 × 7 s" : "3 × 9 s") + " max effort — 6–8 min rest (≈ 60–80 m of sprinting)"] },
+        { h: "Plyos", items: ["Depth jump 12–18 in 3 × 4 · box jump 3 × 3"] },
         { h: "Strength C", items: ["Romanian deadlift 3 × 5, 2 RIR", "Seated leg curl 2 × 8, 1 RIR", "Nordic hamstring curl 2 × 4", "Cable knee drive 2 × 8/leg"] }
       ]}
     ];
@@ -236,30 +245,30 @@
 
   function taperWeek() {
     return [
-      { id: "mon", day: 0, type: "high", title: "Taper: Speed + Light Lift", blocks: [
-        { h: "Track", items: [WARMUP, "4 × 20 m starts — 3 min", "2 × flying 20 m — 6–8 min"] },
+      { id: "mon", day: 0, type: "high", loc: GYM, title: "Taper: Starts + Light Lift", blocks: [
+        { h: "Speed", items: [WARMUP, "4 × 20 m floor starts — 3 min", "Curved treadmill 2 × 6 s max — 4 min"] },
         { h: "Plyos", items: ["Box jump 3 × 3"] },
         { h: "Lift (light, fast)", items: ["Trap-bar jump 3 × 3", "Trap-bar deadlift 2 × 3 @ 80%, fast", "Nordic 1 × 3"] }
       ]},
-      { id: "tue", day: 1, type: "low", title: "Easy Tempo", blocks: [{ h: "Track", items: ["Tempo 800–1,000 m @ 65%", "Upper body 2 sets each, easy"] }] },
-      { id: "wed", day: 2, type: "high", title: "Taper: Starts + Flys", blocks: [
-        { h: "Track", items: [WARMUP, "3 × 30 m starts — 4 min", "2 × 40 m race-model starts — 6 min", "1 × flying 20 m"] },
+      { id: "tue", day: 1, type: "low", loc: GYM, title: "Easy Bike", blocks: [{ h: "", items: ["Air bike or rower 15 min easy", "Upper body 2 sets each, easy"] }] },
+      { id: "wed", day: 2, type: "high", loc: OUT, title: "Taper: Race Starts + Fly (outdoor)", blocks: [
+        { h: "Speed (outdoor)", items: [WARMUP, "3 × 30 m starts — 4 min", "2 × 40 m race-model starts — 6 min", "1 × flying 20 m", "Can't get outside? 4 × 20 m floor starts + 2 × 6 s curve"] },
         { h: "Lift", items: ["Trap-bar jump 2 × 3 · med-ball throw 2 × 3"] }
       ]},
-      { id: "thu", day: 3, type: "low", title: "Easy Tempo + Mobility", blocks: [{ h: "Track", items: ["Tempo 800 m @ 65%", "Hurdle mobility"] }] },
-      { id: "fri", day: 4, type: "high", title: "Short + Sharp", blocks: [{ h: "Track", items: [WARMUP, "3 × 20 m starts — done in 40 min"] }] }
+      { id: "thu", day: 3, type: "low", loc: GYM, title: "Easy Row + Mobility", blocks: [{ h: "", items: ["Rower 10–12 min easy", MOBILITY] }] },
+      { id: "fri", day: 4, type: "high", loc: GYM, title: "Short + Sharp", blocks: [{ h: "Speed", items: [WARMUP, "3 × 20 m floor starts — done in 40 min"] }] }
     ];
   }
 
   // Sessions anchored to contest day (offset in days from contest)
   var COMP = [
-    { off: -5, type: "high", title: "Last Speed Day", blocks: [{ h: "Track", items: [WARMUP, "3 × 30 m starts + 2 × flying 20 m, full rest", "Light fast lift: trap-bar jump 2 × 3"] }] },
-    { off: -4, type: "low", title: "Easy Tempo", blocks: [{ h: "Track", items: ["Tempo 800–1,000 m @ 65% + mobility"] }] },
-    { off: -3, type: "high", title: "Crisp Starts", blocks: [{ h: "Track", items: [WARMUP, "4 × 20 m starts + 1 flying 20 m (~120 m total)", "Med-ball throws 2 × 3"] }] },
-    { off: -2, type: "low", title: "Very Light", blocks: [{ h: "Track", items: ["Dribbles, 2–3 build-ups, mobility"] }] },
-    { off: -1, type: "low", title: "Pre-Meet", blocks: [{ h: "Track", items: ["Full warm-up + 2 × 30 m build-ups + 1–2 starts. Done in 40 min."] }] },
-    { off: 0, type: "comp", title: "CONTEST", blocks: [{ h: "Race day", items: ["Full warm-up, race. Trust the work."] }] },
-    { off: 1, type: "low", title: "Recovery", blocks: [{ h: "", items: ["Off or easy walk + mobility"] }] }
+    { off: -5, type: "high", loc: "Outdoor if possible", title: "Last Speed Day", blocks: [{ h: "Speed", items: [WARMUP, "Outdoor: 3 × 30 m starts + 2 × flying 20 m, full rest", "Gym option: 4 × 20 m floor starts + 3 × 6 s curve", "Light fast lift: trap-bar jump 2 × 3"] }] },
+    { off: -4, type: "low", loc: GYM, title: "Easy Bike", blocks: [{ h: "", items: ["Air bike or rower 15–20 min easy + mobility"] }] },
+    { off: -3, type: "high", loc: GYM, title: "Crisp Starts", blocks: [{ h: "Speed", items: [WARMUP, "4 × 20 m floor starts + 1 × 6 s curve", "Med-ball throws 2 × 3"] }] },
+    { off: -2, type: "low", loc: GYM, title: "Very Light", blocks: [{ h: "", items: ["Dribbles, 2–3 build-ups, mobility"] }] },
+    { off: -1, type: "low", loc: GYM, title: "Pre-Meet", blocks: [{ h: "", items: ["Full warm-up + 2 × 20 m build-ups + 1–2 starts. Done in 40 min."] }] },
+    { off: 0, type: "comp", loc: "Meet", title: "CONTEST", blocks: [{ h: "Race day", items: ["Full warm-up, race. Trust the work."] }] },
+    { off: 1, type: "low", loc: "", title: "Recovery", blocks: [{ h: "", items: ["Off or easy walk + mobility"] }] }
   ];
 
   // Hypertrophy weeks used when fewer than 6 are available (compressed block)
@@ -286,7 +295,7 @@
       COMP.forEach(function (c) {
         var d = addDays(contest, c.off);
         var idx = daysBetween(weekStart, d);
-        if (idx >= 0 && idx <= 6) sessions.push({ id: "c" + c.off, day: idx, type: c.type, title: c.title, blocks: c.blocks });
+        if (idx >= 0 && idx <= 6) sessions.push({ id: "c" + c.off, day: idx, type: c.type, loc: c.loc, title: c.title, blocks: c.blocks });
       });
     }
     return { k: k, label: label, sessions: sessions };
@@ -423,7 +432,7 @@
     var c = el("div", "card " + s.type);
     c.draggable = true;
     c.addEventListener("dragstart", function (e) { e.dataTransfer.setData("text/plain", x.key); });
-    c.appendChild(el("div", "tag", s.type === "high" ? "High day" : s.type === "low" ? "Low day" : "Contest"));
+    c.appendChild(el("div", "tag", (s.type === "high" ? "High day" : s.type === "low" ? "Low day" : "Contest") + (s.loc ? " · " + s.loc : "")));
     c.appendChild(el("div", "t", s.title));
     if (x.moved) c.appendChild(el("div", "moved", "Moved from " + DAYS[s.day]));
 
