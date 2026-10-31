@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Speed + Hypertrophy Plan</title>
+<title>Sprint Training Plan</title>
 <style>
   :root { --hi:#c0392b; --lo:#2471a3; --comp:#7d3c98; --line:#ddd; --bg:#fafafa; }
   * { box-sizing: border-box; }
@@ -49,7 +49,7 @@
   .strip button { flex: 0 0 auto; min-width: 46px; border: 2px solid transparent; border-radius: 4px; padding: 3px 4px; font-size: 11px; line-height: 1.2; cursor: pointer; color: #fff; }
   .strip button.cur { border-color: #000; }
   .ph-base { background: #95a5a6; } .ph-hyp { background: #d35400; } .ph-str { background: #27ae60; } .ph-taper { background: #2980b9; } .ph-comp { background: #7d3c98; }
-  .legend { font-size: 12px; color: #555; padding: 0 16px 4px; background:#fff; }
+  .legend { font-size: 13px; color: #444; padding: 2px 16px 8px; background:#fff; border-bottom: 1px solid var(--line); }
   .legend span { display:inline-block; width:10px; height:10px; border-radius:2px; margin:0 3px 0 10px; vertical-align:middle; }
   .daytabs { display: none; }
   @media (max-width: 700px) {
@@ -93,7 +93,7 @@
 </head>
 <body>
 <header>
-  <h1>Speed + Hypertrophy Plan</h1>
+  <h1>Sprint Training Plan</h1>
   <span class="ctl">
     <span><label for="contest">Contest date:</label> <input type="date" id="contest"></span>
     <span><label for="start">Plan start:</label> <input type="date" id="start"></span>
@@ -112,6 +112,7 @@
   <button id="next" aria-label="Next week">&#9654;</button>
 </div>
 <div id="strip" class="strip"></div>
+<div class="legend"><b>Build</b> = add muscle · <b>Strength</b> = heavier + faster · <b>Taper</b> = rest up · <b>Race</b></div>
 <div id="daytabs" class="daytabs"></div>
 <div id="notes"></div>
 <div id="week" class="week"></div>
@@ -310,11 +311,11 @@
     var H = Math.max(0, Math.min(6, kStart - 4));
     if (k < 0) return { k: k, label: "Contest is over. Enter the next date.", sessions: [] };
     if (k > kStart) return { k: k, label: "Before the plan start date", sessions: [] };
-    if (k === 0) { sessions = []; label = "Contest week"; }
-    else if (k === 1) { sessions = taperWeek(); label = "Taper · less work, stay sharp"; }
-    else if (k <= 4) { var n = 5 - k; sessions = strengthWeek(n); label = "Strength wk " + n + " of 3"; }
-    else if (k <= 4 + H) { var i = 4 + H - k; var h = SEQ[H][i]; sessions = hypWeek(h); label = "Muscle wk " + (i + 1) + " of " + H + " · " + HYP[h].label; }
-    else { sessions = hypWeek(0); label = HYP[0].label; }
+    if (k === 0) { sessions = []; label = "Race week"; }
+    else if (k === 1) { sessions = taperWeek(); label = "Taper · rest up, stay sharp"; }
+    else if (k <= 4) { var n = 5 - k; sessions = strengthWeek(n); label = "Get strong + fast · week " + n + " of 3"; }
+    else if (k <= 4 + H) { var i = 4 + H - k; var h = SEQ[H][i]; sessions = hypWeek(h); label = "Build muscle · week " + (i + 1) + " of " + H + " (" + HYP[h].label + ")"; }
+    else { sessions = hypWeek(0); label = "Base · get ready to train"; }
 
     if (k <= 1) {
       // Replace days from contest-5 onward with contest-anchored sessions
@@ -389,12 +390,12 @@
     for (var k = kStart; k >= 0; k--) {
       var ws = addDays(monday(contest), -7 * k);
       var pl = weekPlan(ws, contest, start);
-      var cls = k === 0 ? "comp" : k === 1 ? "taper" : k <= 4 ? "str" : /^Muscle/.test(pl.label) ? "hyp" : "base";
-      var short = { comp: "Race", taper: "Taper", str: "Str", hyp: "Muscle", base: "Base" }[cls];
-      var m = pl.label.match(/wk (\d+) of (\d+)/);
+      var cls = k === 0 ? "comp" : k === 1 ? "taper" : k <= 4 ? "str" : /^Build/.test(pl.label) ? "hyp" : "base";
+      var short = { comp: "Race", taper: "Taper", str: "Strength", hyp: "Build", base: "Base" }[cls];
+      var m = pl.label.match(/week (\d+) of (\d+)/);
       var b = el("button", "ph-" + cls + (iso(ws) === iso(viewStart) ? " cur" : ""));
       b.innerHTML = "";
-      b.appendChild(document.createTextNode(short + (m ? " " + m[1] : "")));
+      b.appendChild(document.createTextNode(short + (m ? " wk " + m[1] : "")));
       b.appendChild(el("br"));
       b.appendChild(document.createTextNode(MONTHS[ws.getMonth()] + " " + ws.getDate()));
       b.title = pl.label;
@@ -420,7 +421,7 @@
     var contest = parseISO(contestStr);
     renderStrip(contest, parseISO(startStr));
     var plan = weekPlan(viewStart, contest, parseISO(startStr));
-    document.getElementById("phaseLabel").textContent = plan.label + (plan.k > 0 ? " · " + plan.k + " wk to race" : "");
+    document.getElementById("phaseLabel").textContent = plan.label + (plan.k > 0 ? " · " + plan.k + " weeks to race" : "");
 
     var kS = Math.round(daysBetween(monday(parseISO(startStr)), monday(contest)) / 7);
     if (kS >= 0 && kS < 5) notes.appendChild(el("div", "note", "Under 5 weeks to go: skipping the muscle block."));
