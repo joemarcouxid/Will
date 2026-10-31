@@ -123,9 +123,8 @@
     <ul>
       <li><b>Red = hard day, blue = easy day.</b> No two red days in a row.</li>
       <li><b>Sprints first.</b> All-out, full rest. Slower than usual? Cut the lifting, not the rest.</li>
-      <li><b>%</b> = percent of the most you can lift once on that exercise. Don't know it? Pick a weight where the last rep leaves the "left" number in the tank. That weight is the %.</li>
+      <li><b>%</b> = percent of the most you can lift once on that exercise. Don't know it? Pick a weight that's hard on the last rep, but every rep is clean.</li>
       <li><b>Isometrics:</b> push against something that won't move. "All-out" = as hard as you can for the whole hold. "Fast" = hit max force as quick as possible.</li>
-      <li><b>"2 left"</b> = stop when you could still do 2 more reps.</li>
       <li><b>Did it on another day?</b> Change the Day menu.</li>
       <li><b>Sharp hamstring pain?</b> Stop sprinting and tell a coach.</li>
       <li><b>Eat protein every meal. Sleep 8–9 hours.</b></li>
@@ -165,8 +164,8 @@
     else v = 73 - 2.2 * (n - 10);
     return Math.round(v);
   }
-  function L(left) { return left === 0.5 ? "0–1 left" : left === 1.5 ? "1–2 left" : left + " left"; }
-  function X(reps, left, of) { return "~" + pctOf(reps, left) + "%" + (of ? " " + of : "") + " · " + L(left); }
+  function L(left) { return left === 0.5 ? "to failure or 1 short" : "stop " + (left === 1.5 ? "1–2" : left) + " short of failure"; }
+  function X(reps, left, of) { return "~" + pctOf(reps, left) + "%" + (of ? " " + of : ""); }
 
   var HYP = {
     0: { pct: .7, eN: 2, mr: 5, ml: 4, e: "2 left", m: "70%", rdl: "60%", spr: .75, plyo: "box", heavy: 0, nordic: "2 × 4", label: "Base" },
@@ -178,7 +177,7 @@
     6: { pct: .5, eN: 3, mr: 5, ml: 6, e: "3 left", m: "65%", rdl: "55%", spr: .7, plyo: "inplace", heavy: 0, nordic: "2 × 3", label: "easy week" }
   };
 
-  var UPPER_A = function (n) { return ["DB incline press | " + n + " × 10 · " + X(10, 1.5), "Bent-over row (barbell or DB) | " + n + " × 10 · " + X(10, 1.5), "Pull-ups | " + n + " × 6–10 · 1–2 left", "Lateral raise | 2 × 15 · " + X(15, 1.5), "Ab wheel | 3 × 8", "Side plank | 3 × 30 s each"]; };
+  var UPPER_A = function (n) { return ["DB incline press | " + n + " × 10 · " + X(10, 1.5), "Bent-over row (barbell or DB) | " + n + " × 10 · " + X(10, 1.5), "Pull-ups | " + n + " × 6–10", "Lateral raise | 2 × 15 · " + X(15, 1.5), "Ab wheel | 3 × 8", "Side plank | 3 × 30 s each"]; };
   var UPPER_B = function (n) { return ["DB shoulder press | " + n + " × 8 · " + X(8, 1.5), "Cable row | " + n + " × 10 · " + X(10, 1.5), "Dips | 2 × (2 short of max)", "Curls + triceps | 2 × 12 each · " + X(12, 1.5), "Suitcase carry | 3 × 20 m each", "Pallof press | 3 × 10 each"]; };
   function easyA(n) { return ["Bike or rower | " + n + " rounds × 2: 30 s smooth / 30 s easy"]; }
   function easyB(n) { return ["Rower or bike | " + n + " rounds: 1 min steady / 1 min easy", "Mini hurdle walkovers | 3 passes"]; }
@@ -242,8 +241,8 @@
         { h: "Lift (gym)", items: [
           "Trap-bar jump | " + C(4) + " × 3 · 20–30% of max · jump high",
           "1-leg DB RDL | " + C(3) + " × 6 each · " + X(6, aL + 1),
-          "Hanging knee raise | " + I(3) + " × 10–12 · " + L(e) + " (add ankle weight when easy)",
-          "Reverse hyper | " + I(3) + " × 12 · " + L(e),
+          "Hanging knee raise | " + I(3) + " × 10–12 · add ankle weight when easy",
+          "Reverse hyper | " + I(3) + " × 12",
           "Med-ball throw backward | 2 × 4"] }
       ]},
       { id: "thu", day: 3, type: "low", loc: GYM, title: "Easy + Upper", blocks: [
@@ -260,7 +259,7 @@
           "Nordics | " + p.nordic,
           "Walking lunge | " + C(2) + " × 10 each · " + X(10, aL),
           "Cable knee drive | " + I(3) + " × 10 each · " + X(10, e),
-          "Lumbar extension (45° bench, Poliquin style) | " + I(3) + " × 10 · 3-sec lower, squeeze at top · " + L(e) + " · hold a plate when easy"].concat(weight, p.heavy ? ["Sled | Feels easy? Add 10 lb."] : []) }
+          "Lumbar extension (45° bench, Poliquin style) | " + I(3) + " × 10 · 3-sec lower, squeeze at top · hold a plate when easy"].concat(weight, p.heavy ? ["Sled | Feels easy? Add 10 lb."] : []) }
       ]}
     ];
   }
@@ -272,14 +271,14 @@
         { h: "Sprint", items: ["Slope starts | 4 × 10 m · rest 90 s", "Light sled | 3 × 15 m · rest 3 min", "Floor starts | 5 × 20 m · TIME last 2"] },
         { h: "Jumps", items: ["Standing triple jump | 4 × 2", "Hurdle hops | 4 × 5", "Box jumps | 3 × 3"] },
         { h: "Isometrics", items: ["Iso mid-thigh pull (trap bar vs. pins) | 5 × 3 s · hit max force FAST · rest 60 s", "Iso calf hold (heavy) | 3 × 20 s"] },
-        { h: "Lift", items: ["Trap-bar deadlift | 4 × 3 · " + pct + " of max · 2 left", "Split squat | 3 × 5 each · " + X(5, 2), "Hip thrust | 2 × 6 · " + X(6, 2), "Cable knee drive | 2 × 8 each · " + X(8, 2), "Copenhagen plank | 2 × 20 s each", "Add weight | Moving fast? +5–10 lb next week."] }
+        { h: "Lift", items: ["Trap-bar deadlift | 4 × 3 · " + pct + " of max", "Split squat | 3 × 5 each · " + X(5, 2), "Hip thrust | 2 × 6 · " + X(6, 2), "Cable knee drive | 2 × 8 each · " + X(8, 2), "Copenhagen plank | 2 × 20 s each", "Add weight | Moving fast? +5–10 lb next week."] }
       ]},
       { id: "tue", day: 1, type: "low", loc: GYM, title: "Easy + Upper", blocks: [
         { h: "Easy cardio", items: easyA(6) }, { h: "Lift", items: UPPER_A(2) }
       ]},
       { id: "wed", day: 2, type: "high", loc: OUT, title: "Top Speed + Race Starts", blocks: [
         { h: "Sprint (outside)", items: ["Mini hurdle runs | 4", "Flying " + (n >= 2 ? "30" : "20") + " m | 3 · rest 8 min · TIME IT", "Race starts | 2 × 40 m · rest 5 min", "Hard runs | " + (n === 1 ? "2 × 60 m" : "2 × 80 m") + " · rest 8–10 min", "Stuck inside? | Treadmill 3 × 6 s + 2 × 8 s, rest 5 min"] },
-        { h: "Lift (gym)", items: ["Trap-bar jump | 4 × 3 · 20–30% of max", "1-leg DB RDL | 2 × 5 each · " + X(5, 3), "Hanging knee raise | 2 × 10 · 2 left", "Reverse hyper | 2 × 10", "Med-ball throw | 2 × 4"] }
+        { h: "Lift (gym)", items: ["Trap-bar jump | 4 × 3 · 20–30% of max", "1-leg DB RDL | 2 × 5 each · " + X(5, 3), "Hanging knee raise | 2 × 10", "Reverse hyper | 2 × 10", "Med-ball throw | 2 × 4"] }
       ]},
       { id: "thu", day: 3, type: "low", loc: GYM, title: "Easy + Upper", blocks: [
         { h: "Easy cardio", items: easyB(6) }, { h: "Lift", items: UPPER_B(2) }
@@ -288,7 +287,7 @@
         { h: "Sprint", items: ["Slope starts | 3 × 10 m", "Curve treadmill all-out | 3 × " + (n === 1 ? "7" : "9") + " s · rest 6–8 min"] },
         { h: "Jumps", items: ["Depth jumps (low box) | 3 × 4", "Box jumps | 3 × 3"] },
         { h: "Isometrics", items: ["Iso hamstring push | 3 × 3 s each leg · hit max force FAST"] },
-        { h: "Lift", items: ["RDL | 3 × 5 · " + X(5, 2, "of RDL max"), "Seated leg curl | 2 × 8 · " + X(8, 2), "Nordics | 2 × 4", "Cable knee drive | 2 × 8 each · " + X(8, 2), "Lumbar extension (Poliquin style) | 2 × 8 · hold a plate · 2 left"] }
+        { h: "Lift", items: ["RDL | 3 × 5 · " + X(5, 2, "of RDL max"), "Seated leg curl | 2 × 8 · " + X(8, 2), "Nordics | 2 × 4", "Cable knee drive | 2 × 8 each · " + X(8, 2), "Lumbar extension (Poliquin style) | 2 × 8 · hold a plate"] }
       ]}
     ];
   }
