@@ -157,12 +157,12 @@
 
   var HYP = {
     0: { pct: .7, e: "2 left", m: "70%", rdl: "60%", spr: .75, plyo: "box", heavy: 0, nordic: "2 × 4", label: "Base" },
-    1: { pct: .6, e: "3 left", m: "70%", rdl: "60%", spr: .65, plyo: "inplace", heavy: 0, nordic: "2 × 3", label: "easy start + testing" },
+    1: { pct: .6, e: "3 left", m: "70%", rdl: "60%", spr: .65, plyo: "inplace", heavy: 0, nordic: "2 × 3", label: "easy start" },
     2: { pct: .75, e: "2 left", m: "72%", rdl: "60%", spr: .8, plyo: "box", heavy: 5, nordic: "3 × 3", label: "build" },
     3: { pct: .9, e: "1–2 left", m: "75%", rdl: "62%", spr: .9, plyo: "short", heavy: 6, nordic: "3 × 4", label: "build" },
     4: { pct: 1, e: "1 left", m: "77%", rdl: "65%", spr: 1, plyo: "depth", heavy: 6, nordic: "3 × 5", label: "full" },
     5: { pct: 1.1, e: "0–1 left", m: "80%", rdl: "67%", spr: 1, plyo: "bounds", heavy: 6, nordic: "3 × 5", label: "hardest week" },
-    6: { pct: .5, e: "3 left", m: "65%", rdl: "55%", spr: .7, plyo: "inplace", heavy: 0, nordic: "2 × 3", label: "easy week + retest" }
+    6: { pct: .5, e: "3 left", m: "65%", rdl: "55%", spr: .7, plyo: "inplace", heavy: 0, nordic: "2 × 3", label: "easy week" }
   };
 
   var UPPER_A = function (n) { return ["DB incline press | " + n + " × 10", "Chest-supported row | " + n + " × 10", "Pull-ups | " + n + " × 6–10", "Lateral raise | 2 × 15", "Ab wheel | 3 × 8", "Side plank | 3 × 30 s each"]; };
@@ -192,8 +192,6 @@
       bounds: ["Depth jumps (low box) | 3 × 4", "Bounds | 3 × 20 m"]
     }[p.plyo];
 
-    var test = h === 1 ? ["TEST | 10 m start, jump, body weight (Mon) · flying 20 m (Wed)"]
-             : h === 6 ? ["RETEST | flying 20 m, 10 m start, jump, body weight"] : [];
 
     var curve = h === 1 ? [] : ["Curve treadmill all-out | " + (h === 6 ? 2 : 3) + " × 6 s · rest 4 min"];
     var friSpeed = p.heavy
@@ -206,7 +204,7 @@
 
     return [
       { id: "mon", day: 0, type: "high", loc: GYM, title: "Speed + Legs A", blocks: [
-        { h: "Sprint", items: test.concat(["Slope starts | " + r(5) + " × 10 m · rest 90 s", "Light sled | " + r(4) + " × 15 m · rest 3 min", "Floor starts | " + r(4) + " × 20 m · rest 3 min"]) },
+        { h: "Sprint", items: (["Slope starts | " + r(5) + " × 10 m · rest 90 s", "Light sled | " + r(4) + " × 15 m · rest 3 min", "Floor starts | " + r(4) + " × 20 m · rest 3 min"]) },
         { h: "Jumps", items: plyoMon },
         { h: "Lift", items: [
           "Trap-bar deadlift | " + C(4) + " × 5 · " + p.m + " · " + mainE,
