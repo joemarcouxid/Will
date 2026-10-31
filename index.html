@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Speed + Hypertrophy Plan</title>
+<style>
+  :root { --hi:#c0392b; --lo:#2471a3; --comp:#7d3c98; --line:#ddd; --bg:#fafafa; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, system-ui, Segoe UI, Roboto, sans-serif; margin: 0; background: var(--bg); color: #222; }
+  header { background: #222; color: #fff; padding: 12px 16px; }
+  header h1 { font-size: 18px; margin: 0 0 8px; }
+  header label { font-size: 14px; margin-right: 8px; }
+  header input[type=date] { font-size: 15px; padding: 4px; }
+  header button { font-size: 14px; padding: 5px 10px; margin-left: 6px; cursor: pointer; }
+  #shareBox { display:none; margin-top:8px; }
+  #shareBox input { width: 100%; max-width: 520px; font-size: 13px; padding: 4px; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 16px; background: #fff; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .bar button { font-size: 16px; padding: 6px 14px; cursor: pointer; }
+  .bar .mid { text-align: center; flex: 1; min-width: 200px; }
+  .bar .wk { font-weight: 600; }
+  .bar .phase { font-size: 14px; color: #555; }
+  .note { margin: 10px 16px; padding: 8px 12px; background: #fff8e1; border: 1px solid #f0d58c; border-radius: 6px; font-size: 14px; }
+  .week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; padding: 12px 16px; }
+  @media (max-width: 900px) { .week { grid-template-columns: 1fr; } }
+  .day { background: #fff; border: 1px solid var(--line); border-radius: 8px; min-height: 90px; padding: 6px; }
+  .day.today { border: 2px solid #222; }
+  .day.over { background: #eef6ff; }
+  .day h3 { margin: 0 0 6px; font-size: 14px; }
+  .day .warn { color: var(--hi); font-size: 12px; margin-bottom: 4px; }
+  .day .rest { color: #999; font-size: 13px; }
+  .card { border-left: 5px solid #999; background: #fdfdfd; border-radius: 6px; padding: 6px 8px; margin-bottom: 6px; box-shadow: 0 1px 2px rgba(0,0,0,.08); cursor: grab; }
+  .card.high { border-color: var(--hi); }
+  .card.low { border-color: var(--lo); }
+  .card.comp { border-color: var(--comp); }
+  .card .t { font-weight: 600; font-size: 14px; }
+  .card .tag { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #666; }
+  .card details { margin-top: 4px; }
+  .card summary { font-size: 13px; cursor: pointer; color: #333; }
+  .card h4 { font-size: 12px; margin: 6px 0 2px; color: #444; text-transform: uppercase; }
+  .card ul { margin: 0; padding-left: 16px; font-size: 13px; }
+  .card li { margin-bottom: 2px; }
+  .card .move { margin-top: 6px; font-size: 13px; }
+  .card select { font-size: 13px; }
+  .card .moved { font-size: 11px; color: var(--lo); }
+  footer { padding: 8px 16px 30px; font-size: 13px; color: #444; }
+  footer details { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; }
+  footer li { margin-bottom: 4px; }
+  .empty { padding: 30px 16px; text-align: center; color: #555; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Speed + Hypertrophy Plan</h1>
+  <label for="contest">Contest date:</label>
+  <input type="date" id="contest">
+  <label for="start" style="margin-left:10px">Plan start:</label>
+  <input type="date" id="start">
+  <button id="todayBtn">This week</button>
+  <button id="shareBtn">Share link</button>
+  <button id="resetBtn" title="Undo day changes for this week">Reset week</button>
+  <div id="shareBox"><input id="shareUrl" readonly></div>
+</header>
+
+<div class="bar">
+  <button id="prev" aria-label="Previous week">&#9664;</button>
+  <div class="mid"><div class="wk" id="wkLabel"></div><div class="phase" id="phaseLabel"></div></div>
+  <button id="next" aria-label="Next week">&#9654;</button>
+</div>
+<div id="notes"></div>
+<div id="week" class="week"></div>
+
+<footer>
+  <details>
+    <summary><b>How to use / key rules</b></summary>
+    <ul>
+      <li>Enter the contest date. The plan counts back from it to the plan start (defaults to this week): up to a 6-week hypertrophy block (shortened if time is tight) &rarr; 3 weeks strength/power &rarr; taper week &rarr; contest week. Extra time before the block is "Base".</li>
+      <li>Did a session on a different day? Use the <b>Day</b> menu on the card (or drag it on a computer). Changes are saved on this device only.</li>
+      <li><b>Red</b> = high day (sprints, plyos, legs). <b>Blue</b> = low day (easy tempo, upper body). Avoid high days back-to-back; the page warns you.</li>
+      <li>Sprints come first, at full effort, with full rest (about 1 min per 10 m). If the flying 20 m is slower than usual, cut the lifting, not the rest.</li>
+      <li><b>RIR</b> = reps in reserve (reps left before failure). Big lifts stay at 2&ndash;3 RIR and stop when the bar slows. Isolation work goes closer to failure.</li>
+      <li>Sharp or localized hamstring pain: no flys or sled; slope starts or tempo only, and get it checked.</li>
+      <li>Eat enough protein (~1.6 g/kg/day) and enough food to gain ~0.25&ndash;0.5% body weight per week; sleep 8&ndash;9+ hours.</li>
+    </ul>
+  </details>
+</footer>
+
+<script>
+(function () {
+  var DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var DAY_MS = 86400000;
+
+  // ---------- storage (safe) ----------
+  function load(key, fallback) {
+    try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; }
+  }
+  function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+
+  // ---------- dates (local, no timezone drift) ----------
+  function parseISO(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function iso(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  function monday(d) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
+  function addDays(d, n) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; }
+  function daysBetween(a, b) { return Math.round((b - a) / DAY_MS); }
+  function fmt(d) { return DAYS[(d.getDay() + 6) % 7] + " " + MONTHS[d.getMonth()] + " " + d.getDate(); }
+
+  // ---------- plan content ----------
+  var WARMUP = "Warm-up 15–20 min: jog 400 m, leg swings, A-march, A-skip, ankle dribbles, 2 × 20 m straight-leg bounds, 3 × 30 m build-ups";
+
+  var HYP = {
+    0: { pct: .7, rir: "2–3 RIR", spr: .75, plyo: "box", heavy: 0, nordic: "2 × 4", label: "Base (before the block): moderate volume, learn the lifts" },
+    1: { pct: .6, rir: "3 RIR", spr: .65, plyo: "inplace", heavy: 0, nordic: "2 × 3", label: "re-entry + baseline tests" },
+    2: { pct: .75, rir: "2 RIR", spr: .8, plyo: "box", heavy: 5, nordic: "3 × 3", label: "build" },
+    3: { pct: .9, rir: "1–2 RIR", spr: .9, plyo: "short", heavy: 6, nordic: "3 × 4", label: "build" },
+    4: { pct: 1, rir: "1–2 RIR (last set 0–1)", spr: 1, plyo: "depth", heavy: 6, nordic: "3 × 5", label: "full volume" },
+    5: { pct: 1.1, rir: "0–1 RIR on last set", spr: 1, plyo: "bounds", heavy: 6, nordic: "3 × 5", label: "peak volume" },
+    6: { pct: .5, rir: "3 RIR", spr: .7, plyo: "inplace", heavy: 0, nordic: "2 × 3", label: "deload + retest" }
+  };
+
+  function hypWeek(h) {
+    var p = HYP[h];
+    function iso_(s) { return Math.max(1, p.pct > 1 ? Math.ceil(s * p.pct) : Math.round(s * p.pct)); }
+    function cmp(s) { return p.pct <= .5 ? Math.ceil(s / 2) : (p.pct < .7 ? s - 1 : s); }
+    function r(n) { return Math.max(1, Math.round(n * p.spr)); }
+    var up = p.pct <= .5 ? 2 : 3;
+
+    var plyoMon = p.plyo === "inplace"
+      ? "Box jump 3 × 3 (step down) · pogo hops 3 × 10"
+      : "Box jump 3 × 3 (step down) · standing long jump 4 × 3 · low hurdle hops 4 × 5";
+    var plyoWed = {
+      inplace: "Ankle hops 3 × 15 · low hurdle hops 3 × 5",
+      box: "Ankle hops 3 × 15 · low hurdle hops 3 × 5 · box jump 2 × 3",
+      short: "Drop-to-stick from 12–18 in box 2 × 4 · low hurdle hops 4 × 5",
+      depth: "Drop-to-stick 2 × 4 · depth jump from 12–18 in box 3 × 4",
+      bounds: "Drop-to-stick 2 × 4 · depth jump 12–18 in 3 × 4 · alternate-leg bounds 3 × 20 m"
+    }[p.plyo];
+
+    var friTrack = p.heavy
+      ? ["Slope starts: " + r(4) + " × 15 m uphill — walk down + 2 min",
+         "Heavy sled: " + p.heavy + " × 15 m (~40–50% slower than free) — 3–4 min rest",
+         "Free contrast: 3 × 20 m from 3-point — 4 min rest (should feel light and fast)"]
+      : ["Slope starts: " + r(6) + " × 15 m uphill — walk down + 2 min",
+         "Free starts: " + r(3) + " × 20 m from 3-point — 4 min rest"];
+
+    var wedTrack = ["Rhythm: mini-hurdle / wicket runs × 4",
+      "Flying 20 m off a 30 m build: " + Math.max(2, r(4)) + " reps — 6–8 min rest. TIME EVERY REP (weekly speed check)"];
+    if (h >= 3 && h <= 5) wedTrack.push("Sprint-float-sprint 20-20-20 m × 2 — 8 min rest");
+
+    var testNote = (h === 1) ? ["BASELINE TESTS this week: flying 20 m (Wed), 10 m start + CMJ + body weight (Mon), trap-bar estimated 3RM (Mon)"]
+                 : (h === 6) ? ["RETEST Friday or next Monday: flying 20 m, 10 m start, CMJ, body weight"] : [];
+
+    return [
+      { id: "mon", day: 0, type: "high", title: "Acceleration + Lift A", blocks: [
+        { h: "Track", items: testNote.concat([WARMUP,
+          "Slope starts: " + r(4) + " × 15 m uphill from 3-point — walk down + 2 min",
+          "Light sled: " + r(4) + " × 20 m (~10% slower than free) — 3 min rest",
+          "Free starts: " + r(4) + " × 30 m from 3-point — 4 min rest"]) },
+        { h: "Plyos", items: [plyoMon] },
+        { h: "Lift A (" + p.rir + " on isolation)", items: [
+          "Trap-bar deadlift " + cmp(4) + " × 4–5 @ ~75–82%, 2–3 RIR — stop if bar slows",
+          "Rear-foot-elevated split squat " + cmp(3) + " × 8/leg, 2 RIR (slight forward lean)",
+          "Barbell hip thrust " + iso_(3) + " × 8–10",
+          "Cable standing knee drive " + iso_(3) + " × 10/leg",
+          "Copenhagen plank " + iso_(3) + " × 20–30 s/side",
+          "Straight-leg calf raise 2 × 10, 3-sec lowering"] }
+      ]},
+      { id: "tue", day: 1, type: "low", title: "Tempo + Upper A", blocks: [
+        { h: "Track", items: ["Tempo on grass: 2 × " + Math.max(4, Math.round(7 * p.spr)) + " × 100 m @ 65–70% — 45 s walk, 3 min between sets"] },
+        { h: "Upper A (1–2 RIR)", items: ["DB incline press " + up + " × 8–10", "Chest-supported row " + up + " × 10", "Pull-up " + up + " × 6–10", "DB lateral raise 2 × 12–15", "Dead bug 3 × 8/side · side plank 3 × 30 s"] }
+      ]},
+      { id: "wed", day: 2, type: "high", title: "Max Velocity + Lift B", blocks: [
+        { h: "Track", items: [WARMUP].concat(wedTrack) },
+        { h: "Plyos", items: [plyoWed] },
+        { h: "Lift B (fast, ~30 min)", items: [
+          "Trap-bar jump " + cmp(4) + " × 3 @ 20–30% of trap-bar max — max intent",
+          "Single-leg RDL " + cmp(3) + " × 6/leg, 2–3 RIR",
+          "Hanging knee raise (or ankle-weight psoas march) " + iso_(3) + " × 10–12",
+          "Cable/machine hip adduction " + iso_(3) + " × 12/leg",
+          "Overhead backward med-ball throw 2 × 4 (4–6 kg)"] }
+      ]},
+      { id: "thu", day: 3, type: "low", title: "Tempo + Upper B", blocks: [
+        { h: "Track", items: ["Tempo: " + Math.max(4, Math.round(6 * p.spr)) + " × 200 m @ 65% — 60–90 s walk", "Hurdle mobility: 3 passes over 8 hurdles"] },
+        { h: "Upper B (1–2 RIR)", items: ["Seated DB shoulder press " + up + " × 8", "Single-arm row " + up + " × 10", "Dips or push-ups 2 × (2 short of failure)", "Curls 2 × 12 · triceps 2 × 12", "Pallof press 3 × 10/side · back-extension hold 2 × 30 s"] }
+      ]},
+      { id: "fri", day: 4, type: "high", title: (p.heavy ? "Heavy Sled" : "Slope Starts") + " + Lift C (hamstrings)", blocks: [
+        { h: "Track", items: [WARMUP].concat(friTrack) },
+        { h: "Plyos", items: ["Box jump 3 × 3 · skips for height 2 × 20 m"] },
+        { h: "Lift C (" + p.rir + " on isolation)", items: [
+          "Romanian deadlift " + cmp(4) + " × 6–8, 2 RIR — 1-sec pause at the stretch",
+          "Seated leg curl " + iso_(3) + " × 10–12 — lean forward, 3-sec lowering",
+          "Nordic hamstring curl " + p.nordic + " (band-assist if needed)",
+          "Walking lunge or high step-up " + cmp(2) + " × 10/leg, 2 RIR",
+          "Cable/ankle-weight knee drive " + iso_(3) + " × 10–12/leg",
+          "45° back extension (glute bias) " + iso_(2) + " × 12–15"] }
+      ]}
+    ];
+  }
+
+  function strengthWeek(n) {
+    return [
+      { id: "mon", day: 0, type: "high", title: "Acceleration + Strength A", blocks: [
+        { h: "Track", items: [WARMUP, "Slope starts 4 × 15 m — walk down + 2 min", "Light sled 3 × 20 m — 3 min", "Free starts 4 × 30 m from 3-point — 4 min"] },
+        { h: "Plyos", items: ["Standing triple jump 4 × 2 · hurdle hops 4 × 5 · box jump 3 × 3"] },
+        { h: "Strength A", items: ["Trap-bar deadlift 4 × 3 @ 85–88%, 2 RIR — stop if bar slows", "Rear-foot-elevated split squat 3 × 5/leg, 2 RIR", "Hip thrust 2 × 6, 1–2 RIR", "Cable knee drive 2 × 8/leg", "Copenhagen plank 2 × 20 s/side"] }
+      ]},
+      { id: "tue", day: 1, type: "low", title: "Tempo + Upper A", blocks: [
+        { h: "Track", items: ["Tempo: 2 × 6 × 100 m @ 65–70% — 45 s walk"] },
+        { h: "Upper A", items: ["DB incline press 2 × 6–8", "Chest-supported row 2 × 8", "Pull-up 2 × 6–8", "Core: dead bug, side plank"] }
+      ]},
+      { id: "wed", day: 2, type: "high", title: "Max Velocity + Power", blocks: [
+        { h: "Track", items: [WARMUP, "Wicket runs × 4", (n >= 2 ? "Flying 30 m off 30 m build × 3" : "Flying 20 m off 30 m build × 4") + " — 8 min rest. TIME EVERY REP"] },
+        { h: "Plyos", items: ["Depth jump 12–18 in 3 × 4 · alternate-leg bounds 3 × 30 m"] },
+        { h: "Power B", items: ["Trap-bar jump 4 × 3 — max intent", "Single-leg RDL 2 × 5/leg", "Hanging knee raise 2 × 10", "Hip adduction 2 × 10/leg", "Med-ball overhead throw 2 × 4"] }
+      ]},
+      { id: "thu", day: 3, type: "low", title: "Tempo + Upper B", blocks: [
+        { h: "Track", items: ["Tempo: 5 × 200 m @ 65% — 60–90 s walk", "Hurdle mobility"] },
+        { h: "Upper B", items: ["DB shoulder press 2 × 6–8", "Single-arm row 2 × 8", "Pallof press 3 × 10/side"] }
+      ]},
+      { id: "fri", day: 4, type: "high", title: "Speed Endurance + Strength C", blocks: [
+        { h: "Track", items: [WARMUP, "Slope starts 3 × 15 m", (n === 1 ? "2 × 80 m" : "2 × 120 m") + " @ 95% — 10–12 min rest"] },
+        { h: "Plyos", items: ["Box jump 3 × 3"] },
+        { h: "Strength C", items: ["Romanian deadlift 3 × 5, 2 RIR", "Seated leg curl 2 × 8, 1 RIR", "Nordic hamstring curl 2 × 4", "Cable knee drive 2 × 8/leg"] }
+      ]}
+    ];
+  }
+
+  function taperWeek() {
+    return [
+      { id: "mon", day: 0, type: "high", title: "Taper: Speed + Light Lift", blocks: [
+        { h: "Track", items: [WARMUP, "4 × 20 m starts — 3 min", "2 × flying 20 m — 6–8 min"] },
+        { h: "Plyos", items: ["Box jump 3 × 3"] },
+        { h: "Lift (light, fast)", items: ["Trap-bar jump 3 × 3", "Trap-bar deadlift 2 × 3 @ 80%, fast", "Nordic 1 × 3"] }
+      ]},
+      { id: "tue", day: 1, type: "low", title: "Easy Tempo", blocks: [{ h: "Track", items: ["Tempo 800–1,000 m @ 65%", "Upper body 2 sets each, easy"] }] },
+      { id: "wed", day: 2, type: "high", title: "Taper: Starts + Flys", blocks: [
+        { h: "Track", items: [WARMUP, "3 × 30 m starts — 4 min", "2 × flying 20 m — 6–8 min"] },
+        { h: "Lift", items: ["Trap-bar jump 2 × 3 · med-ball throw 2 × 3"] }
+      ]},
+      { id: "thu", day: 3, type: "low", title: "Easy Tempo + Mobility", blocks: [{ h: "Track", items: ["Tempo 800 m @ 65%", "Hurdle mobility"] }] },
+      { id: "fri", day: 4, type: "high", title: "Short + Sharp", blocks: [{ h: "Track", items: [WARMUP, "3 × 20 m starts — done in 40 min"] }] }
+    ];
+  }
+
+  // Sessions anchored to contest day (offset in days from contest)
+  var COMP = [
+    { off: -5, type: "high", title: "Last Speed Day", blocks: [{ h: "Track", items: [WARMUP, "3 × 30 m starts + 2 × flying 20 m, full rest", "Light fast lift: trap-bar jump 2 × 3"] }] },
+    { off: -4, type: "low", title: "Easy Tempo", blocks: [{ h: "Track", items: ["Tempo 800–1,000 m @ 65% + mobility"] }] },
+    { off: -3, type: "high", title: "Crisp Starts", blocks: [{ h: "Track", items: [WARMUP, "4 × 20 m starts + 1 flying 20 m (~120 m total)", "Med-ball throws 2 × 3"] }] },
+    { off: -2, type: "low", title: "Very Light", blocks: [{ h: "Track", items: ["Dribbles, 2–3 build-ups, mobility"] }] },
+    { off: -1, type: "low", title: "Pre-Meet", blocks: [{ h: "Track", items: ["Full warm-up + 2 × 30 m build-ups + 1–2 starts. Done in 40 min."] }] },
+    { off: 0, type: "comp", title: "CONTEST", blocks: [{ h: "Race day", items: ["Full warm-up, race. Trust the work."] }] },
+    { off: 1, type: "low", title: "Recovery", blocks: [{ h: "", items: ["Off or easy walk + mobility"] }] }
+  ];
+
+  // Hypertrophy weeks used when fewer than 6 are available (compressed block)
+  var SEQ = { 1: [2], 2: [1, 4], 3: [1, 3, 4], 4: [1, 3, 4, 6], 5: [1, 2, 4, 5, 6], 6: [1, 2, 3, 4, 5, 6] };
+
+  // ---------- phase logic ----------
+  function weekPlan(weekStart, contest, start) {
+    var k = Math.round(daysBetween(weekStart, monday(contest)) / 7);
+    var sessions, label;
+    var kStart = Math.round(daysBetween(monday(start), monday(contest)) / 7);
+    var H = Math.max(0, Math.min(6, kStart - 4));
+    if (k < 0) return { k: k, label: "After the contest. Enter the next contest date.", sessions: [] };
+    if (k > kStart) return { k: k, label: "Before the plan start date", sessions: [] };
+    if (k === 0) { sessions = []; label = "Contest week"; }
+    else if (k === 1) { sessions = taperWeek(); label = "Taper week: volume down, speed sharp"; }
+    else if (k <= 4) { var n = 5 - k; sessions = strengthWeek(n); label = "Strength & Power wk " + n + " of 3"; }
+    else if (k <= 4 + H) { var i = 4 + H - k; var h = SEQ[H][i]; sessions = hypWeek(h); label = "Hypertrophy wk " + (i + 1) + " of " + H + ": " + HYP[h].label; }
+    else { sessions = hypWeek(0); label = HYP[0].label; }
+
+    if (k <= 1) {
+      // Replace days from contest-5 onward with contest-anchored sessions
+      var cutoff = addDays(contest, -5);
+      sessions = sessions.filter(function (s) { return addDays(weekStart, s.day) < cutoff; });
+      COMP.forEach(function (c) {
+        var d = addDays(contest, c.off);
+        var idx = daysBetween(weekStart, d);
+        if (idx >= 0 && idx <= 6) sessions.push({ id: "c" + c.off, day: idx, type: c.type, title: c.title, blocks: c.blocks });
+      });
+    }
+    return { k: k, label: label, sessions: sessions };
+  }
+
+  // ---------- state ----------
+  var params = new URLSearchParams(location.search);
+  var contestStr = params.get("contest") || load("shPlan.contest", "");
+  var startStr = params.get("start") || load("shPlan.start", "") || iso(monday(new Date()));
+  var overrides = load("shPlan.overrides", {});
+  var viewStart = monday(new Date());
+
+  if (viewStart < parseISO(startStr)) viewStart = parseISO(startStr);
+  var contestInput = document.getElementById("contest");
+  contestInput.value = contestStr;
+  var startInput = document.getElementById("start");
+  startInput.value = startStr;
+  function syncUrl() {
+    var u = new URL(location.href);
+    if (contestStr) u.searchParams.set("contest", contestStr); else u.searchParams.delete("contest");
+    u.searchParams.set("start", startStr);
+    history.replaceState(null, "", u.toString());
+  }
+  startInput.addEventListener("change", function () {
+    if (!startInput.value) return;
+    startStr = iso(monday(parseISO(startInput.value))); startInput.value = startStr;
+    save("shPlan.start", startStr); syncUrl(); render();
+  });
+
+  contestInput.addEventListener("change", function () {
+    contestStr = contestInput.value;
+    save("shPlan.contest", contestStr);
+    syncUrl(); render();
+  });
+  document.getElementById("prev").onclick = function () { viewStart = addDays(viewStart, -7); render(); };
+  document.getElementById("next").onclick = function () { viewStart = addDays(viewStart, 7); render(); };
+  document.getElementById("todayBtn").onclick = function () { viewStart = monday(new Date()); if (viewStart < parseISO(startStr)) viewStart = parseISO(startStr); render(); };
+  document.getElementById("resetBtn").onclick = function () {
+    var w = iso(viewStart);
+    Object.keys(overrides).forEach(function (key) { if (key.indexOf(w + "|") === 0) delete overrides[key]; });
+    save("shPlan.overrides", overrides); render();
+  };
+  document.getElementById("shareBtn").onclick = function () {
+    var u = new URL(location.href.split("?")[0]);
+    if (contestStr) u.searchParams.set("contest", contestStr);
+    u.searchParams.set("start", startStr);
+    var box = document.getElementById("shareBox"), inp = document.getElementById("shareUrl");
+    inp.value = u.toString(); box.style.display = "block"; inp.select();
+    try { navigator.clipboard.writeText(inp.value); document.getElementById("shareBtn").textContent = "Copied!"; setTimeout(function () { document.getElementById("shareBtn").textContent = "Share link"; }, 1500); } catch (e) {}
+  };
+
+  function setDay(key, dayIdx) { overrides[key] = dayIdx; save("shPlan.overrides", overrides); render(); }
+
+  // ---------- render ----------
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  function render() {
+    var weekEl = document.getElementById("week"), notes = document.getElementById("notes");
+    weekEl.innerHTML = ""; notes.innerHTML = "";
+    document.getElementById("wkLabel").textContent = fmt(viewStart) + " – " + fmt(addDays(viewStart, 6));
+
+    if (!contestStr) {
+      document.getElementById("phaseLabel").textContent = "";
+      var m = el("div", "empty", "Enter the contest date above to build the plan.");
+      weekEl.appendChild(m); return;
+    }
+    var contest = parseISO(contestStr);
+    var plan = weekPlan(viewStart, contest, parseISO(startStr));
+    document.getElementById("phaseLabel").textContent = plan.label + (plan.k >= 0 ? " · " + plan.k + " wk to contest week" : "");
+
+    var kS = Math.round(daysBetween(monday(parseISO(startStr)), monday(contest)) / 7);
+    if (kS >= 0 && kS < 5) notes.appendChild(el("div", "note", "Less than 5 weeks from the plan start to the contest, so the plan skips the hypertrophy block and goes straight to strength/power and the taper."));
+
+    // place sessions with overrides
+    var wkKey = iso(viewStart);
+    var byDay = [[], [], [], [], [], [], []];
+    plan.sessions.forEach(function (s) {
+      var key = wkKey + "|" + s.id;
+      var d = (key in overrides) ? overrides[key] : s.day;
+      byDay[d].push({ s: s, key: key, moved: d !== s.day });
+    });
+
+    // high-day collision warnings
+    function isHigh(d) { return byDay[d].some(function (x) { return x.s.type === "high" || x.s.type === "comp"; }); }
+    function highCount(d) { return byDay[d].filter(function (x) { return x.s.type === "high" || x.s.type === "comp"; }).length; }
+
+    var todayIso = iso(new Date());
+    for (var d = 0; d < 7; d++) {
+      var date = addDays(viewStart, d);
+      var col = el("div", "day" + (iso(date) === todayIso ? " today" : ""));
+      col.dataset.day = d;
+      col.appendChild(el("h3", null, fmt(date)));
+      if (highCount(d) > 1) col.appendChild(el("div", "warn", "⚠ Two high sessions on one day. Move one."));
+      else if (isHigh(d) && ((d > 0 && isHigh(d - 1)) || (d < 6 && isHigh(d + 1)))) col.appendChild(el("div", "warn", "⚠ High days back-to-back. Make one a low day."));
+      if (!byDay[d].length) col.appendChild(el("div", "rest", "Rest / off"));
+
+      byDay[d].forEach(function (x) { col.appendChild(card(x)); });
+
+      // drag and drop target
+      col.addEventListener("dragover", function (e) { e.preventDefault(); this.classList.add("over"); });
+      col.addEventListener("dragleave", function () { this.classList.remove("over"); });
+      col.addEventListener("drop", function (e) {
+        e.preventDefault(); this.classList.remove("over");
+        var key = e.dataTransfer.getData("text/plain"); if (key) setDay(key, +this.dataset.day);
+      });
+      weekEl.appendChild(col);
+    }
+  }
+
+  function card(x) {
+    var s = x.s;
+    var c = el("div", "card " + s.type);
+    c.draggable = true;
+    c.addEventListener("dragstart", function (e) { e.dataTransfer.setData("text/plain", x.key); });
+    c.appendChild(el("div", "tag", s.type === "high" ? "High day" : s.type === "low" ? "Low day" : "Contest"));
+    c.appendChild(el("div", "t", s.title));
+    if (x.moved) c.appendChild(el("div", "moved", "Moved from " + DAYS[s.day]));
+
+    var det = el("details");
+    det.appendChild(el("summary", null, "Show session"));
+    s.blocks.forEach(function (b) {
+      if (b.h) det.appendChild(el("h4", null, b.h));
+      var ul = el("ul");
+      b.items.forEach(function (i) { ul.appendChild(el("li", null, i)); });
+      det.appendChild(ul);
+    });
+    c.appendChild(det);
+
+    var mv = el("div", "move");
+    mv.appendChild(document.createTextNode("Day: "));
+    var sel = el("select");
+    DAYS.forEach(function (dn, i) {
+      var o = el("option", null, dn); o.value = i;
+      if (i === (x.key in overrides ? overrides[x.key] : s.day)) o.selected = true;
+      sel.appendChild(o);
+    });
+    sel.addEventListener("change", function () { setDay(x.key, +sel.value); });
+    mv.appendChild(sel);
+    c.appendChild(mv);
+    return c;
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
