@@ -118,6 +118,13 @@
   .tip { font-size: 14px; color: var(--soft); background: var(--bg); border-radius: 10px; padding: 10px 12px; margin-top: 14px; }
   .next { font-size: 14px; color: var(--soft); padding: 0 16px 16px; margin: 0; }
 
+  .move { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 14px 16px 0; font-size: 14px; color: var(--soft); }
+  .move .movebtn { width: 100%; }
+  .move.blocked { background: var(--hard-bg); color: var(--hard); margin: 14px 16px 0; padding: 10px 12px; border-radius: 10px; }
+  .move.moved { justify-content: space-between; padding-top: 10px; }
+  .linkish { background: none; border: 0; padding: 0; color: var(--easy); text-decoration: underline; cursor: pointer; font-weight: 600; }
+  .timer { grid-column: 2 / 4; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin-top: 8px; font-size: 14px; color: var(--soft); }
+  .timer input { width: 80px; font: inherit; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; margin-left: 6px; }
   .restmsg { padding: 6px 16px 18px; font-size: 16px; }
   .restmsg ul { padding-left: 18px; margin: 6px 0; }
 
@@ -200,7 +207,9 @@
       <li><b>3 sets of 8</b> Do 8 reps, rest, three times.</li>
       <li><b>Leave 2 in the tank</b> Stop when you could still do 2 more good reps. Pick a weight where that's true.</li>
       <li><b>Rest 4 min</b> Really rest the full time. Short rest on sprints makes you slower, not tougher.</li>
-      <li><b>ⓘ</b> Tap it on any exercise for how to do it.</li>
+      <li><b>i</b> Tap it on any exercise for how to do it.</li>
+      <li><b>Time it</b> Write your time in the box. The app keeps your best.</li>
+      <li><b>Missed a day?</b> Open the workout you want and tap "Make this today's workout". The rest of the week shifts so two hard days never land back to back.</li>
       <li><b>Hurts?</b> Pain (not just tired) means stop that exercise and tell your coach or a parent.</li>
     </ul>
   </section>
@@ -244,78 +253,65 @@
   const WARM_GYM = [
     "Bike or rower 5 min easy",
     "Leg swings and walking lunges, 10 each",
-    "Drills on the turf: A-skips and high knees, 2 × 15 m",
-    "Build-ups: 3 × 20 m on the turf"
+    "High knees and skips in place, 20 s each",
+    "Warm-up sets: before each big lift, do 2–3 lighter sets"
   ];
   const WARM_EASY = ["Jog or bike 5 min", "Leg swings, 10 each way"];
 
   /* ---------------- how-to explanations ---------------- */
-  // Matched against the exercise name, first match wins.
+  // Matched against the exercise name, first match wins (so order matters).
 
   const HOW = [
-    ["flying", "Run 30 m to build up speed, then sprint the next 20 m all-out. Only the fast part counts. If someone can time it, time the fast part."],
+    ["flying", "Run 30 m to build up speed, then sprint the next 20 m all-out. Only the fast part counts. Have someone time the fast part and write it down."],
     ["sprint-float-sprint", "Sprint 20 m, then hold that speed but relax for 20 m (float), then sprint the last 20 m. Teaches you to stay fast and loose."],
     ["mini hurdle", "Set 8–10 mini hurdles (or cones) about 6.5–7 ft apart. Run through them fast and tall, quick feet, one step between each."],
-    ["release run", "A partner holds your belt (or a band around your waist) and leans back while you drive for 10 m, then lets go and you sprint 20 m more."],
-    ["resisted", "Sprint with a light sled or belt resistance. If it turns into a slow march, it's too heavy. You should still look like a sprinter."],
+    ["release run", "A partner holds a towel or band around your waist and leans back while you drive for 10 m, then lets go and you sprint 20 m more."],
     ["hill sprint", "Find a hill that isn't too steep. Sprint up all-out, walk down slowly. The hill makes you push low and hard like the start of a race."],
     ["crouch start", "Three-point start: one hand on the ground, feet staggered. Push out low and let your body rise naturally over the first 10–15 m."],
-    ["race start", "Start the way you would in a race (blocks if you have them), and run through the finish line at full speed."],
-    ["slope start", "Sprint starts up a gentle ramp or slope. Stay low, push the ground back hard."],
-    ["floor start", "Three-point start on the turf (one hand down), then sprint."],
-    ["heavy sled", "Sled loaded so you're moving at about half your normal speed. Push hard, stay low. Rest fully — this is strength work."],
-    ["light sled", "Sled light enough that you still look like you're sprinting. Rest fully between reps."],
-    ["curve treadmill", "The curved self-powered treadmill. All-out means you drive the belt as hard as you can. Rest fully."],
-    ["bend run", "Start on the curve of the track and run through the straight. That's how the 200 is run. Lean slightly from your ankles into the turn."],
+    ["bend run", "Start on the curve of the track and run into the straight — that's how the 200 is run. Lean slightly from your ankles into the turn."],
     ["fast 60", "Sprint 60 m from a standing start at about 95%: fast, but relaxed in the face and shoulders."],
     ["fast 80", "Sprint 80 m at about 95%: fast, but relaxed. Hold your form to the end."],
-    ["speed endurance", "Sprint at about 95%. The goal is holding your speed to the end, not dying at 80 m. Full rest — this is the hardest workout of the week."],
     ["150", "Sprint at about 95%, starting on the curve. Hold form to the line. Full rest between."],
-    ["200 rehearsal", "Run a 200 like a race, at about 95%. Time it. This is race practice."],
-    ["tempo", "Run on grass at an easy-fast pace (about 70%) — smooth, not sprinting. Walk back between reps. You should be able to talk right after."],
-    ["circuit", "Go through every exercise, rest a minute, then go again. Smooth and controlled, not a race."],
+    ["200 practice", "Run a 200 like a race, at about 95%. Time it. This is race practice."],
+    ["easy 100", "Run on grass at about two-thirds effort — smooth, not sprinting. Walk back between. You should be able to talk right after."],
+    ["build-up", "Start jogging and smoothly speed up to about 90% by the end. Never strain."],
+    ["bike or rower sprint", "On a bike, air bike or rower: go as hard as you possibly can for the time, then pedal or row very easy until the next one."],
+    ["bike or rower", "Easy pace the whole time. You should be able to talk."],
     ["hurdle mobility", "Set up 5–6 hurdles. Step over them sideways (overs), then duck under (unders). Slow and controlled."],
     ["broad jump", "Two-foot jump forward as far as you can. Land softly and stick it."],
     ["triple jump", "Standing start, then hop, step and jump. Land on both feet."],
-    ["hurdle hop", "Two-foot hops over 4–6 low hurdles in a row. Spend as little time on the ground as possible."],
+    ["hurdle hop", "Two-foot hops over 4–6 low hurdles (or cones) in a row. Spend as little time on the ground as possible."],
+    ["single-leg hop", "Hop forward on one leg, landing softly each time. Then switch legs."],
     ["pogo", "Small, quick bounces on the balls of your feet, knees nearly straight. Like a pogo stick."],
     ["ankle hop", "Small, quick bounces on the balls of your feet, knees nearly straight. Like a pogo stick."],
+    ["tuck jump", "Jump straight up and pull your knees to your chest. Land softly, reset, repeat."],
     ["bounds", "Big exaggerated running strides, pushing off each leg for distance. Stay tall."],
     ["drop + stick", "Step off a low box, land on both feet and freeze. Teaches landing."],
-    ["depth jump", "Step off a low box, and the instant you land, jump up as high as you can."],
-    ["box jump", "Jump up onto a box, land softly, step down. Height of the box doesn't matter much — jumping fast does."],
-    ["skips for height", "Skip, but drive your knee up and jump as high as you can on each skip."],
+    ["box jump", "Jump up onto a box, land softly, step down. Jumping fast matters more than box height."],
     ["med-ball", "Throw a medicine ball as far as you can — explode with your hips and legs, not just your arms."],
+    ["back squat", "Bar on your upper back, feet shoulder-width. Sit down until your thighs are at least parallel, then drive up. Use the safety pins."],
+    ["trap-bar jump", "Hold a light trap (hex) bar and jump as high as you can. Land softly. Light weight, fast jump."],
     ["trap-bar deadlift", "Stand inside the hex bar, chest up, back flat, drive through the floor to stand up."],
-    ["trap-bar jump", "Hold a light trap bar and jump as high as you can. Land softly. Light weight, fast jump."],
     ["split squat", "One foot forward, back foot up on a bench. Lower until your back knee nearly touches, then drive up."],
-    ["hip thrust", "Upper back on a bench, bar across your hips. Drive your hips up and squeeze your glutes at the top."],
-    ["knee drive", "Cable or band around your foot. Drive your knee up fast like you're sprinting, control it back down."],
-    ["copenhagen", "Side plank with your top leg on a bench and bottom leg hanging. Works the inner thigh (groin)."],
-    ["calf raise", "Up on your toes, then lower slowly for 3 seconds."],
-    ["iso mid-thigh", "Isometric: pull up on a bar that's pinned and can't move. Pull as hard as you can for the whole time."],
-    ["iso calf", "Isometric: stand on the edge of a step holding heavy weight, heels just below the step. Hold still."],
-    ["iso split-squat", "Isometric: split-squat position under a pinned bar. Push up as hard as you can — it won't move. Hold."],
-    ["iso hamstring", "Isometric: lie on your back, heel on a box, hips up. Push your heel down into the box as hard as you can. Hold."],
-    ["1-leg", "Single-leg Romanian deadlift: stand on one leg, hinge forward with a flat back until you feel the hamstring stretch, stand back up."],
+    ["kettlebell swing", "Hinge at the hips, swing the bell between your legs, then snap your hips forward so it floats to chest height. Power from the hips, not the arms."],
+    ["glute bridge", "Lie on your back, feet flat. Drive your hips up and squeeze your glutes at the top."],
+    ["calf raise", "Up on your toes, then lower slowly for 3 seconds. Do them on a step for more range."],
     ["rdl", "Romanian deadlift: knees soft, push your hips back, slide the bar down your thighs until you feel the hamstrings, stand back up."],
-    ["leg curl", "Machine leg curl. Control the way back down."],
-    ["nordic", "Kneel with your ankles held down. Lower your body forward as slowly as you can, catch yourself with your hands. Best hamstring injury prevention there is."],
+    ["nordic", "Kneel with your ankles held down by a partner or under a pad. Lower your body forward as slowly as you can, catch yourself with your hands. Best hamstring injury prevention there is."],
     ["walking lunge", "Long steps forward, back knee nearly to the floor."],
-    ["knee raise", "Hang from a bar, raise your knees to your chest, lower slowly. No swinging."],
-    ["reverse hyper", "Lie face down on the machine and lift your legs behind you with your glutes and lower back."],
-    ["lumbar extension", "45° back-extension bench. Lower for 3 seconds, raise up and squeeze at the top."],
-    ["incline press", "Dumbbell press on a bench set at a slight incline."],
-    ["row", "Pull the weight to your stomach, squeeze your shoulder blades together."],
-    ["pull-up", "Hang from the bar, pull your chin over it. Use a band if you need help."],
-    ["lateral raise", "Light dumbbells, raise them out to the sides to shoulder height."],
-    ["ab wheel", "Roll out as far as you can while keeping your back flat, roll back in."],
-    ["side plank", "Hold a straight line from head to feet, on your elbow and the side of your foot."],
+    ["reverse lunge", "Step back into a lunge, back knee nearly to the floor, drive back up through the front foot."],
+    ["push press", "Bar at your shoulders, small dip with your knees, then drive it overhead using your legs."],
+    ["back extension", "On the back-extension bench (or face down on the floor as a superman). Lift with your glutes and lower back, lower slowly."],
+    ["bench press", "Lie on the bench, lower the bar to your chest, press it up. Always use a spotter."],
+    ["chin-up", "Palms facing you, pull your chin over the bar. Use a band if you need help."],
+    ["pull-up", "Palms facing away, pull your chin over the bar. Use a band if you need help."],
+    ["db row", "One hand and knee on a bench, pull the dumbbell to your hip."],
     ["shoulder press", "Dumbbells at your shoulders, press overhead."],
-    ["dips", "On parallel bars, lower until your upper arms are level, press back up."],
-    ["suitcase carry", "Heavy dumbbell in one hand, walk tall without leaning."],
-    ["pallof", "Stand sideways to a cable, hold the handle at your chest and press it straight out. Don't let it twist you."],
-    ["bike sprint", "On a bike or air bike, go as hard as you can for the time, then pedal easy."]
+    ["farmer carry", "Heavy dumbbell in each hand, walk tall."],
+    ["dead bug", "On your back, arms up, knees up. Slowly lower opposite arm and leg, keep your lower back pressed to the floor."],
+    ["side plank", "Hold a straight line from head to feet, on your elbow and the side of your foot."],
+    ["plank", "Forearms on the floor, straight line from head to heels, squeeze everything."],
+    ["drills", "A-skips, high knees, butt kicks — the same drills you do in warm-up."]
   ];
 
   const howTo = (name) => {
@@ -345,7 +341,18 @@
   };
 
   /* ---------------- sessions ---------------- */
-  // Every training day has a track version and a gym version. He does one.
+  // Every training day has a Track version and a Gym version. He does one.
+  //
+  // Built on: Francis hi-lo (hard days >=95%, easy days <=75%, never two hard
+  // days in a row), ALTIS short-to-long (accel + top speed every week, 200 work
+  // gets longer toward the race), Holler (time the sprints, full rest, stop
+  // when you slow down), Schexnayder jump progression (in-place -> short ->
+  // bounding), and HS-friendly volumes (150-300 m of all-out sprinting on a
+  // speed day, 300-600 m on a 200 day).
+  //
+  // Gym days use only a normal high school weight room: squat rack, trap bar,
+  // dumbbells, kettlebells, bench, pull-up bar, boxes, med balls, a bike or
+  // rower. No Olympic lifts, no special machines.
 
   function buildParams(h) {
     const p = HYP[h];
@@ -356,8 +363,6 @@
       I: (s) => Math.max(1, p.pct > 1 ? Math.ceil(s * p.pct) : Math.round(s * p.pct)),
       C: (s) => p.pct <= .5 ? Math.ceil(s / 2) : (p.pct < .7 ? s - 1 : s),
       aL: (h === 1 || h === 6) ? 3 : 2,
-      isoN: h === 1 ? 3 : h === 6 ? 2 : 4,
-      isoE: h === 1 ? "hard push, not max" : "push as hard as you can",
       up: p.pct <= .5 ? 2 : 3,
       weightNote: h === 1 ? "First week: find your weights and write them down."
         : h === 6 ? "Easy week: go lighter, don't add weight."
@@ -365,206 +370,188 @@
     };
   }
 
-  const UPPER_A = (n) => [
-    "DB incline press | " + n + " sets of 10 · " + T(1.5),
-    "Row (barbell or DB) | " + n + " sets of 10 · " + T(1.5),
-    "Pull-ups | " + n + " sets of 6–10",
-    "Lateral raise | 2 sets of 15",
-    "Ab wheel | 3 sets of 8",
-    "Side plank | 3 × 30 s each side"
-  ];
-  const UPPER_B = (n) => [
-    "DB shoulder press | " + n + " sets of 8 · " + T(1.5),
-    "Cable row | " + n + " sets of 10 · " + T(1.5),
-    "Dips | 2 sets, stop 2 short of max",
-    "Curls + triceps | 2 sets of 12 each",
-    "Suitcase carry | 3 × 20 m each hand",
-    "Pallof press | 3 sets of 10 each side"
-  ];
+  const tempo = (sets, reps) => "Easy 100s on grass | " + (sets > 1 ? sets + " sets of " : "") + reps + " × 100 m · about two-thirds effort · walk 30 s between" + (sets > 1 ? ", 3 min between sets" : "");
 
-  const tempo = (sets, reps) => "Tempo 100s on grass | " + (sets > 1 ? sets + " sets of " : "") + reps + " × 100 m · easy-fast, about 70% · walk 30 s between" + (sets > 1 ? ", 3 min between sets" : "");
-
-  const CIRCUIT_A = ["Push-ups | 2 sets of 15", "Walking lunges | 2 sets of 10 each leg", "Sit-ups | 2 sets of 20", "Prisoner squats | 2 sets of 15"];
+  const CIRCUIT_A = ["Push-ups | 2 sets of 15", "Walking lunges | 2 sets of 10 each leg", "Sit-ups | 2 sets of 20", "Bodyweight squats | 2 sets of 15"];
   const CIRCUIT_B = ["Hurdle mobility | 3 passes of overs and unders", "Med-ball throws, easy | 2 sets of 8", "Side plank | 2 × 30 s each side", "Glute bridges | 2 sets of 15"];
 
+  const UPPER_A = (n) => [
+    "Bench press | " + n + " sets of 8 · " + T(3),
+    "Pull-ups | " + n + " sets of 6–10",
+    "DB row | " + n + " sets of 10 each arm · " + T(3),
+    "Plank | 3 × 40 s",
+    "Side plank | 2 × 30 s each side"
+  ];
+  const UPPER_B = (n) => [
+    "DB shoulder press | " + n + " sets of 10 · " + T(3),
+    "Chin-ups | " + n + " sets of 6–10",
+    "Push-ups | 2 sets of 15",
+    "Farmer carry | 3 × 30 m",
+    "Dead bug | 2 sets of 10 each side"
+  ];
+
   function trainingWeek(ph) {
-    // ph: { kind: "base"|"build"|"strength"|"taper", h, n }
     const out = [];
     const k = ph.kind;
+    const B = (k === "base" || k === "build") ? buildParams(ph.h) : null;
 
-    /* ----- MONDAY: acceleration ----- */
+    /* ===== MONDAY · ACCELERATION ===== */
     let accTrack, accGym;
-    if (k === "base" || k === "build") {
-      const b = buildParams(ph.h), p = b.p;
-      const jumps = p.plyo === "inplace" ? ["Pogo hops | 3 × 10", "Broad jumps | 3 × 3"] : ["Broad jumps | 4 × 3", "Hurdle hops | 3 × 5"];
-      accTrack = {
-        title: "Starts + hills",
-        blocks: [
-          { h: "Sprints", items: ["Hill sprints | " + b.r(6) + " × 20 m · all-out · walk down + rest 3 min", "Crouch starts | " + b.r(4) + " × 20 m · rest 3 min"].concat(p.heavy ? ["Resisted sprints (belt or light sled) | " + b.r(4) + " × 20 m · rest 3 min"] : []) },
-          { h: "Jumps + throws", items: jumps.concat(["Med-ball throw forward | 6 throws"]) }
-        ]
-      };
-      accGym = {
-        title: "Starts + legs A",
-        blocks: [
-          { h: "Sprints", items: ["Slope starts | " + b.r(5) + " × 10 m · rest 90 s", (p.heavy ? "Heavy sled | " + p.heavy : "Light sled | " + b.r(4)) + " × 15 m · rest 3 min", "Floor starts | " + b.r(3) + " × 20 m · rest 3 min"] },
-          { h: "Jumps", items: p.plyo === "inplace" ? ["Box jumps | 3 × 3", "Pogo hops | 3 × 10"] : ["Box jumps | 3 × 3", "Broad jumps | 3 × 3"] },
-          { h: "Lift", items: [
-            "Trap-bar deadlift | " + b.C(4) + " sets of " + p.mr + " · " + T(p.ml),
-            "Split squat (back foot up) | " + b.C(3) + " sets of 8 each leg · " + T(b.aL),
-            "Hip thrust | " + b.I(3) + " sets of 10 · " + T(p.eN),
-            "Iso mid-thigh pull | " + b.isoN + " × 5 s · " + b.isoE + " · rest 60 s",
-            "Copenhagen plank | " + b.I(3) + " × 20–30 s each side",
-            "Calf raise | 2 sets of 10 · slow down"
-          ] }
-        ],
-        tip: b.weightNote
-      };
+    if (B) {
+      const p = B.p;
+      const jumps = p.plyo === "inplace"
+        ? ["Pogo hops | 3 × 10", "Broad jumps | 3 × 3"]
+        : ["Broad jumps | 4 × 3", "Standing triple jump | 3 × 2"];
+      accTrack = { title: "Starts + hills", blocks: [
+        { h: "Sprints", items: [
+          "Hill sprints | " + B.r(6) + " × 20 m · all-out · walk down + rest 3 min",
+          "Crouch starts | " + B.r(4) + " × 20 m · rest 3 min"
+        ].concat(p.heavy ? ["Release runs | " + B.r(3) + " × 30 m · rest 4 min"] : []) },
+        { h: "Jumps + throws", items: jumps.concat(["Med-ball throw forward | 6 throws"]) }
+      ] };
+      accGym = { title: "Legs: push power", blocks: [
+        { h: "Jumps + throws", items: [
+          "Box jumps | 3 × 3",
+          p.plyo === "inplace" ? "Broad jumps | 3 × 3" : "Broad jumps | 4 × 3",
+          "Med-ball throw forward | 6 throws"
+        ] },
+        { h: "Lift", items: [
+          "Back squat | " + B.C(4) + " sets of " + p.mr + " · " + T(p.ml),
+          "Split squat (back foot on bench) | " + B.C(3) + " sets of 8 each leg · " + T(B.aL),
+          "Kettlebell swings | " + B.I(3) + " sets of 12 · snap the hips",
+          "Single-leg glute bridge | " + B.I(3) + " sets of 10 each",
+          "Calf raise | 3 sets of 12 · slow down"
+        ] }
+      ], tip: B.weightNote + " Gym can't replace sprinting — get to the track for this day when you can." };
     } else if (k === "strength") {
-      const n = ph.n, pct = ["85%", "87%", "90%"][n - 1];
-      accTrack = {
-        title: "Starts",
-        blocks: [
-          { h: "Sprints", items: ["Crouch starts | 4 × 20 m · rest 3 min", "Crouch starts | 3 × 30 m · rest 4 min · time the last 2", "Release runs | 3 × 30 m · rest 4 min"] },
-          { h: "Jumps + throws", items: ["Standing triple jump | 4 × 2", "Hurdle hops | 4 × 5", "Med-ball throw forward | 6 throws"] }
-        ]
-      };
-      accGym = {
-        title: "Starts + strength",
-        blocks: [
-          { h: "Sprints", items: ["Slope starts | 4 × 10 m · rest 90 s", "Light sled | 3 × 15 m · rest 3 min", "Floor starts | 4 × 20 m · rest 3 min"] },
-          { h: "Jumps", items: ["Standing triple jump | 3 × 2", "Box jumps | 3 × 3"] },
-          { h: "Lift", items: [
-            "Trap-bar deadlift | 4 sets of 3 · heavy, about " + pct + " of your max · move it fast",
-            "Split squat | 3 sets of 5 each leg · " + T(2),
-            "Hip thrust | 2 sets of 6 · " + T(2),
-            "Iso mid-thigh pull | 5 × 3 s · hit max force fast · rest 60 s",
-            "Copenhagen plank | 2 × 20 s each side"
-          ] }
-        ],
-        tip: "Moving fast? Add 5–10 lb next week."
-      };
+      const pct = ["85%", "87%", "90%"][ph.n - 1];
+      accTrack = { title: "Starts", blocks: [
+        { h: "Sprints", items: [
+          "Crouch starts | 4 × 20 m · rest 3 min",
+          "Crouch starts | 3 × 30 m · rest 4 min · time it",
+          "Release runs | 2 × 30 m · rest 4 min"
+        ] },
+        { h: "Jumps + throws", items: ["Standing triple jump | 4 × 2", "Hurdle hops | 3 × 5", "Med-ball throw forward | 6 throws"] }
+      ] };
+      accGym = { title: "Legs: heavy + fast", blocks: [
+        { h: "Jumps", items: ["Box jumps | 3 × 3", "Broad jumps | 3 × 3"] },
+        { h: "Lift", items: [
+          "Back squat | 4 sets of 3 · heavy, about " + pct + " of your max · drive up fast",
+          "Split squat | 3 sets of 5 each leg · " + T(2),
+          "Kettlebell swings | 3 sets of 8 · heavy bell, fast hips",
+          "Calf raise | 2 sets of 12"
+        ] }
+      ], tip: "Bar moving fast? Add 5–10 lb next week. Bar slowing down a lot? Stay put." };
     } else {
-      accTrack = { title: "Sharp starts", blocks: [{ h: "Sprints", items: ["Crouch starts | 4 × 20 m · rest 3 min", "Crouch starts | 2 × 30 m · rest 4 min"] }, { h: "Jumps", items: ["Broad jumps | 2 × 2"] }] };
-      accGym = { title: "Sharp starts + light lift", blocks: [
-        { h: "Sprints", items: ["Floor starts | 4 × 20 m · rest 3 min", "Curve treadmill | 2 × 6 s all-out · rest 4 min"] },
-        { h: "Lift", items: ["Box jumps | 3 × 3", "Trap-bar jump | 3 × 3 · light", "Trap-bar deadlift | 2 sets of 3 · about 80% · fast", "Nordics | 1 set of 3"] }
+      accTrack = { title: "Sharp starts", blocks: [
+        { h: "Sprints", items: ["Crouch starts | 4 × 20 m · rest 3 min", "Crouch starts | 2 × 30 m · rest 4 min · time it"] },
+        { h: "Jumps", items: ["Broad jumps | 2 × 2"] }
+      ] };
+      accGym = { title: "Light + fast", blocks: [
+        { h: "Jumps", items: ["Box jumps | 3 × 3"] },
+        { h: "Lift", items: ["Trap-bar jump squat | 3 × 3 · light", "Back squat | 2 sets of 3 · about 80% · fast"] }
       ] };
     }
-    out.push({ day: 0, type: "high", focus: "Acceleration", why: "Getting out fast. The first 30 m of every race.", track: accTrack, gym: accGym, suggest: (k === "base" || k === "build") ? "gym" : "track" });
+    out.push({ day: 0, type: "high", focus: "Acceleration", why: "Getting out fast. The first 30 m of every race.", track: accTrack, gym: accGym, suggest: k === "build" ? "gym" : "track" });
 
-    /* ----- TUESDAY + THURSDAY: easy ----- */
-    const easySets = k === "taper" ? 1 : k === "strength" ? 1 : (ph.h === 1 || ph.h === 6) ? 1 : 2;
-    const easyReps = k === "taper" ? 6 : (k === "strength" || ph.h === 1 || ph.h === 6) ? 8 : 6;
-    const upN = k === "strength" ? 2 : k === "taper" ? 1 : buildParams(ph.h).up;
-    const cardio = k === "taper" ? 4 : k === "strength" ? 6 : Math.max(5, Math.round(8 * HYP[ph.h].spr));
+    /* ===== TUESDAY + THURSDAY · EASY ===== */
+    const easySets = (k === "build" && ph.h !== 1 && ph.h !== 6) || k === "base" ? 2 : 1;
+    const easyReps = k === "taper" ? 6 : easySets === 1 ? 8 : 6;
+    const upN = k === "build" ? B.up : 2;
+    const easyCardio = (mins) => "Bike or rower | " + mins + " min easy · you could hold a conversation";
+    const upperLight = k === "taper" ? ["Push-ups | 2 sets of 10", "Pull-ups | 2 sets of 5", "Plank | 2 × 30 s"] : null;
 
-    out.push({ day: 1, type: "low", focus: "Easy day", why: "Recover from yesterday so tomorrow can be fast. Stay relaxed.",
-      track: { title: "Tempo + circuit", blocks: [{ h: "Run", items: [tempo(easySets, easyReps)] }, { h: "Circuit", items: CIRCUIT_A }] },
-      gym: { title: "Easy cardio + upper body", blocks: [{ h: "Cardio", items: ["Bike or rower | " + cardio + " rounds of 30 s smooth / 30 s easy"] }, { h: "Lift", items: k === "taper" ? ["Upper body | 2 easy sets of each from your usual"] : UPPER_A(upN) }] },
+    out.push({ day: 1, type: "low", focus: "Easy day", why: "Recover from yesterday so tomorrow can be fast. Nothing hard today.",
+      track: { title: "Easy running + circuit", blocks: [{ h: "Run", items: [tempo(easySets, easyReps)] }, { h: "Circuit", items: CIRCUIT_A }] },
+      gym: { title: "Easy cardio + upper body", blocks: [{ h: "Cardio", items: [easyCardio(k === "taper" ? 10 : 15)] }, { h: "Upper body, light", items: upperLight || UPPER_A(upN) }] },
       suggest: "gym" });
 
-    /* ----- WEDNESDAY: max velocity ----- */
+    /* ===== WEDNESDAY · MAX SPEED ===== */
     let mvTrack, mvGym;
-    if (k === "base" || k === "build") {
-      const b = buildParams(ph.h), p = b.p;
-      const items = ["Mini hurdle runs | 4 runs", "Flying 20 m | " + Math.max(2, b.r(4)) + " reps · rest 6–8 min · time it"];
+    if (B) {
+      const p = B.p;
+      const items = ["Mini hurdle runs | 4 runs", "Flying 20 m | " + Math.max(2, B.r(4)) + " reps · rest 6–8 min · time it"];
       if (ph.h >= 3 && ph.h <= 5) items.push("Sprint-float-sprint | 2 × 60 m · rest 8 min");
       const plyo = {
-        inplace: ["Ankle hops | 3 × 15", "Hurdle hops | 3 × 5"],
-        box: ["Ankle hops | 3 × 15", "Hurdle hops | 3 × 5", "Broad jumps | 2 × 3"],
-        short: ["Hurdle hops | 4 × 5", "Broad jumps | 3 × 3"],
+        inplace: ["Ankle hops | 3 × 15", "Tuck jumps | 3 × 5"],
+        box: ["Ankle hops | 3 × 15", "Hurdle hops | 3 × 5"],
+        short: ["Hurdle hops | 4 × 5", "Single-leg hops | 2 × 5 each leg"],
         depth: ["Hurdle hops | 4 × 5", "Bounds | 2 × 20 m"],
         bounds: ["Hurdle hops | 3 × 5", "Bounds | 3 × 20 m"]
       }[p.plyo];
       mvTrack = { title: "Top speed", blocks: [{ h: "Sprints", items }, { h: "Jumps", items: plyo }] };
-      mvGym = {
-        title: "Treadmill speed + legs B",
-        blocks: [
-          { h: "Sprints", items: ["Curve treadmill | " + Math.max(2, b.r(4)) + " × 6 s all-out · rest 4–5 min"] },
-          { h: "Jumps", items: p.plyo === "inplace" ? ["Pogo hops | 3 × 10"] : ["Drop + stick (low box) | 2 × 4", "Depth jumps (low box) | " + (p.plyo === "depth" || p.plyo === "bounds" ? "3 × 4" : "2 × 3")] },
-          { h: "Lift", items: [
-            "Trap-bar jump | " + b.C(4) + " sets of 3 · light · jump high",
-            "1-leg DB RDL | " + b.C(3) + " sets of 6 each leg · " + T(b.aL + 1),
-            "Iso split-squat push | " + Math.max(2, b.isoN - 1) + " × 5 s each leg · " + b.isoE,
-            "Hanging knee raise | " + b.I(3) + " sets of 10–12",
-            "Reverse hyper | " + b.I(3) + " sets of 12",
-            "Med-ball throw backward | 2 × 4"
-          ] }
-        ],
-        tip: b.weightNote
-      };
+      mvGym = { title: "Legs: bounce + hamstrings", blocks: [
+        { h: "Jumps", items: p.plyo === "inplace" ? ["Pogo hops | 3 × 10", "Tuck jumps | 3 × 5"] : ["Pogo hops | 3 × 10", "Box jumps | 3 × 3", "Drop + stick (low box) | 2 × 4"] },
+        { h: "Lift", items: [
+          "Trap-bar jump squat | " + B.C(4) + " sets of 3 · light · jump high",
+          "RDL | " + B.C(3) + " sets of 8 · " + T(B.aL),
+          "Nordics | " + p.nordic,
+          "Walking lunge | " + B.C(2) + " sets of 10 each leg · " + T(B.aL),
+          "Calf raise | 3 sets of 12 · slow down"
+        ] }
+      ], tip: "Top speed only gets trained by sprinting. This keeps your legs springy and hamstrings strong, but do the track version whenever you can." };
     } else if (k === "strength") {
-      const n = ph.n;
       mvTrack = { title: "Top speed", blocks: [
-        { h: "Sprints", items: ["Mini hurdle runs | 4 runs", "Flying " + (n >= 2 ? "30" : "20") + " m | 3 reps · rest 8 min · time it", "Sprint-float-sprint | 2 × 60 m · rest 8 min"] },
+        { h: "Sprints", items: ["Mini hurdle runs | 4 runs", "Flying " + (ph.n >= 2 ? "30" : "20") + " m | 3 reps · rest 8 min · time it", "Sprint-float-sprint | 2 × 60 m · rest 8 min"] },
         { h: "Jumps", items: ["Bounds | 3 × 20 m", "Hurdle hops | 3 × 5"] }
       ] };
-      mvGym = { title: "Treadmill speed + legs B", blocks: [
-        { h: "Sprints", items: ["Curve treadmill | 3 × 6 s + 2 × 8 s all-out · rest 5 min"] },
-        { h: "Lift", items: ["Trap-bar jump | 4 sets of 3 · light · jump high", "1-leg DB RDL | 2 sets of 5 each leg · " + T(3), "Hanging knee raise | 2 sets of 10", "Reverse hyper | 2 sets of 10", "Med-ball throw backward | 2 × 4"] }
-      ] };
+      mvGym = { title: "Legs: bounce + hamstrings", blocks: [
+        { h: "Jumps", items: ["Pogo hops | 3 × 10", "Box jumps | 3 × 3"] },
+        { h: "Lift", items: ["Trap-bar jump squat | 4 sets of 3 · light · jump high", "RDL | 3 sets of 5 · " + T(2), "Nordics | 2 sets of 4", "Calf raise | 2 sets of 12"] }
+      ], tip: "Top speed only gets trained by sprinting. Do the track version whenever you can." };
     } else {
-      mvTrack = { title: "Top speed, short", blocks: [{ h: "Sprints", items: ["Mini hurdle runs | 3 runs", "Flying 20 m | 2 reps · rest 6 min"] }] };
-      mvGym = { title: "Treadmill speed, short", blocks: [{ h: "Sprints", items: ["Curve treadmill | 3 × 6 s all-out · rest 4 min"] }, { h: "Lift", items: ["Trap-bar jump | 2 sets of 3 · light"] }] };
+      mvTrack = { title: "Top speed, short", blocks: [{ h: "Sprints", items: ["Mini hurdle runs | 3 runs", "Flying 20 m | 2 reps · rest 6 min · time it"] }] };
+      mvGym = { title: "Light + springy", blocks: [{ h: "Jumps", items: ["Pogo hops | 2 × 10", "Box jumps | 2 × 3"] }, { h: "Lift", items: ["Trap-bar jump squat | 2 × 3 · light", "Nordics | 1 set of 3"] }] };
     }
     out.push({ day: 2, type: "high", focus: "Max speed", why: "Your top speed — the middle of the 100 and the straight of the 200.", track: mvTrack, gym: mvGym, suggest: "track" });
 
     out.push({ day: 3, type: "low", focus: "Easy day", why: "Recover so Friday's 200 work can be your best.",
-      track: { title: "Tempo + mobility", blocks: [{ h: "Run", items: [tempo(easySets, easyReps)] }, { h: "Circuit", items: CIRCUIT_B }] },
-      gym: { title: "Easy cardio + upper body", blocks: [{ h: "Cardio", items: ["Rower or bike | " + Math.max(4, cardio - 1) + " rounds of 1 min steady / 1 min easy"] }, { h: "Lift", items: k === "taper" ? ["Upper body | 2 easy sets of each from your usual"] : UPPER_B(upN) }] },
+      track: { title: "Easy running + mobility", blocks: [{ h: "Run", items: [tempo(easySets, easyReps)] }, { h: "Circuit", items: CIRCUIT_B }] },
+      gym: { title: "Easy cardio + upper body", blocks: [{ h: "Cardio", items: [easyCardio(k === "taper" ? 10 : 15)] }, { h: "Upper body, light", items: upperLight || UPPER_B(upN) }] },
       suggest: "gym" });
 
-    /* ----- FRIDAY: 200 speed endurance ----- */
-    let seRuns, seGymRuns;
-    if (k === "base") {
-      seRuns = ["Fast 60s | 3 × 60 m · about 95% · rest 6 min", "Bend run | 1 × 100 m · about 95% · rest 8 min before it"];
-      seGymRuns = ["Curve treadmill | 3 × 10 s all-out · rest 6 min"];
-    } else if (k === "build") {
-      seRuns = {
-        1: ["Fast 60s | 2 × 60 m · about 95% · rest 6 min", "Bend run | 1 × 100 m · rest 8 min before it"],
-        2: ["Fast 80s | 3 × 80 m · about 95% · rest 8 min"],
-        3: ["Fast 80s | 2 × 80 m · about 95% · rest 8 min", "Bend run | 1 × 120 m · rest 10 min before it"],
-        4: ["Fast 80s | 2 × 80 m · about 95% · rest 8 min", "Bend run | 1 × 120 m · rest 10 min before it"],
-        5: ["Bend runs | 2 × 120 m · about 95% · rest 10–12 min", "Fast 80 | 1 × 80 m · rest 8 min before it"],
-        6: ["Fast 60s | 2 × 60 m · about 95% · rest 6 min"]
-      }[ph.h];
-      seGymRuns = ["Curve treadmill | " + (ph.h === 1 || ph.h === 6 ? 2 : 3) + " × 10 s all-out · rest 6–8 min"];
-    } else if (k === "strength") {
-      seRuns = {
-        1: ["Speed endurance 120s | 3 × 120 m · start on the bend · rest 10–12 min · time it"],
-        2: ["150s | 2 × 150 m · start on the bend · rest 15 min · time it", "Fast 80 | 1 × 80 m · rest 8 min before it"],
-        3: ["200 rehearsal | 1 × 200 m · about 95% · time it", "Bend run | 1 × 120 m · rest 20 min before it"]
-      }[ph.n];
-      seGymRuns = ["Curve treadmill | 3 × " + (ph.n === 1 ? 12 : 15) + " s all-out · rest 8–10 min"];
-    } else {
-      seRuns = ["Bend runs | 2 × 120 m · about 95% · rest 12 min · relaxed fast, not strained"];
-      seGymRuns = ["Curve treadmill | 2 × 10 s · rest 8 min"];
-    }
+    /* ===== FRIDAY · 200 SPEED ENDURANCE ===== */
+    let seRuns;
+    if (k === "base") seRuns = ["Fast 60s | 3 × 60 m · about 95% · rest 6 min", "Bend run | 1 × 100 m · about 95% · rest 8 min before it"];
+    else if (k === "build") seRuns = {
+      1: ["Fast 60s | 2 × 60 m · about 95% · rest 6 min", "Bend run | 1 × 100 m · rest 8 min before it"],
+      2: ["Fast 80s | 3 × 80 m · about 95% · rest 8 min · time it"],
+      3: ["Fast 80s | 2 × 80 m · about 95% · rest 8 min", "Bend run | 1 × 120 m · rest 10 min before it · time it"],
+      4: ["Fast 80s | 2 × 80 m · about 95% · rest 8 min", "Bend run | 1 × 120 m · rest 10 min before it · time it"],
+      5: ["Bend runs | 2 × 120 m · about 95% · rest 10–12 min · time it", "Fast 80 | 1 × 80 m · rest 8 min before it"],
+      6: ["Fast 60s | 2 × 60 m · about 95% · rest 6 min"]
+    }[ph.h];
+    else if (k === "strength") seRuns = {
+      1: ["Bend runs | 3 × 120 m · start on the curve · rest 10–12 min · time it"],
+      2: ["150s | 2 × 150 m · start on the curve · rest 15 min · time it", "Fast 80 | 1 × 80 m · rest 8 min before it"],
+      3: ["200 practice | 1 × 200 m · about 95% · time it", "Bend run | 1 × 120 m · rest 20 min before it"]
+    }[ph.n];
+    else seRuns = ["Bend runs | 2 × 120 m · about 95% · rest 12 min · relaxed fast, not strained"];
 
-    const seLift = (k === "base" || k === "build") ? (() => {
-      const b = buildParams(ph.h), p = b.p;
-      return [
-        "RDL | " + b.C(4) + " sets of 8 · " + T(b.aL),
-        "Seated leg curl | " + b.I(3) + " sets of 12 · " + T(p.eN),
-        "Nordics | " + p.nordic,
-        "Walking lunge | " + b.C(2) + " sets of 10 each leg · " + T(b.aL),
-        "Iso hamstring push | " + Math.max(2, b.isoN - 1) + " × 5 s each leg · " + b.isoE,
-        "Lumbar extension | " + b.I(3) + " sets of 10 · 3 s down"
-      ];
-    })() : k === "strength"
-      ? ["RDL | 3 sets of 5 · " + T(2), "Seated leg curl | 2 sets of 8 · " + T(2), "Nordics | 2 sets of 4", "Iso hamstring push | 3 × 3 s each leg · fast", "Lumbar extension | 2 sets of 8"]
-      : ["Nordics | 1 set of 3"];
+    let seGym;
+    if (B) seGym = [
+      { h: "Bike sprints", items: ["Bike or rower sprints | " + (B.h === 1 || B.h === 6 ? 4 : 6) + " × 20 s all-out · 3 min easy pedaling between"] },
+      { h: "Lift", items: [
+        "Trap-bar deadlift | " + B.C(3) + " sets of 6 · " + T(B.aL),
+        "Reverse lunge | " + B.C(3) + " sets of 8 each leg · " + T(B.aL),
+        "Nordics | " + B.p.nordic,
+        "Push press | " + B.C(3) + " sets of 6 · " + T(2),
+        "Back extension | 2 sets of 12"
+      ] }
+    ];
+    else if (k === "strength") seGym = [
+      { h: "Bike sprints", items: ["Bike or rower sprints | 5 × 30 s all-out · 4 min easy pedaling between"] },
+      { h: "Lift", items: ["Trap-bar deadlift | 3 sets of 4 · heavy, fast", "Reverse lunge | 2 sets of 6 each leg · " + T(2), "Nordics | 2 sets of 4", "Push press | 3 sets of 4 · " + T(2)] }
+    ];
+    else seGym = [{ h: "Bike sprints", items: ["Bike or rower sprints | 3 × 20 s · 4 min easy between"] }];
 
     out.push({ day: 4, type: "high", focus: "200 speed", why: "Holding your speed to the line. This is the 200, and the end of the 100.",
       track: { title: "Speed endurance", blocks: [
         { h: "Sprints", items: seRuns },
         { h: "Cool down", items: ["Walk 400 m, then easy stretching | 10 min"] }
-      ], tip: "Hardest day of the week. Rest the full time between runs. If you're slower than usual, stop — don't grind." },
-      gym: { title: "Treadmill 200 work + legs C", blocks: [
-        { h: "Sprints", items: seGymRuns },
-        { h: "Lift", items: seLift }
-      ], tip: "The track version is better for the 200. Use this when you can't get to a track." },
+      ], tip: "Hardest day of the week. Rest the full time between runs. If you're clearly slower than usual, stop — don't grind." },
+      gym: { title: "Bike sprints + legs", blocks: seGym,
+        tip: "The 200 is run on a track. This keeps your engine and legs working, but do the track version whenever you can." },
       suggest: "track" });
 
     return out;
@@ -573,20 +560,20 @@
   // Race week, built backward from the race date.
   const COMP = [
     { off: -5, type: "high", focus: "Last speed day", why: "Last fast work before the race. Short and sharp.",
-      track: { title: "Starts + flys", blocks: [{ h: "Sprints", items: ["Crouch starts | 3 × 30 m · rest 4 min", "Flying 20 m | 2 reps · rest 6 min"] }] },
-      gym: { title: "Starts + treadmill", blocks: [{ h: "Sprints", items: ["Floor starts | 4 × 20 m · rest 3 min", "Curve treadmill | 3 × 6 s · rest 4 min"] }, { h: "Lift", items: ["Trap-bar jump | 2 sets of 3 · light"] }] }, suggest: "track" },
+      track: { title: "Starts + flys", blocks: [{ h: "Sprints", items: ["Crouch starts | 3 × 30 m · rest 4 min", "Flying 20 m | 2 reps · rest 6 min · time it"] }] },
+      gym: { title: "Light + fast", blocks: [{ h: "Jumps", items: ["Box jumps | 3 × 3"] }, { h: "Lift", items: ["Trap-bar jump squat | 2 × 3 · light"] }] }, suggest: "track" },
     { off: -4, type: "low", focus: "Easy day", why: "Loosen up.",
-      track: { title: "Easy tempo", blocks: [{ h: "Run", items: ["Tempo 100s on grass | 6 × 100 m · easy · walk back"] }] },
+      track: { title: "Easy running", blocks: [{ h: "Run", items: ["Easy 100s on grass | 6 × 100 m · easy · walk back"] }] },
       gym: { title: "Easy bike", blocks: [{ h: "Cardio", items: ["Bike | 15–20 min easy"] }] }, suggest: "gym" },
     { off: -3, type: "high", focus: "Quick starts", why: "A few fast starts to stay sharp. Done in 30 minutes.",
       track: { title: "Quick starts", blocks: [{ h: "Sprints", items: ["Crouch starts | 4 × 20 m · rest 3 min"] }] },
-      gym: { title: "Quick starts", blocks: [{ h: "Sprints", items: ["Floor starts | 4 × 20 m · rest 3 min", "Curve treadmill | 1 × 6 s"] }] }, suggest: "track" },
+      gym: { title: "Quick and light", blocks: [{ h: "Jumps", items: ["Box jumps | 2 × 3", "Broad jumps | 2 × 2"] }] }, suggest: "track" },
     { off: -2, type: "low", focus: "Light day", why: "Feel bouncy, not tired.",
       track: { title: "Drills", blocks: [{ h: "", items: ["Drills + build-ups | warm-up, then 3 × 40 m build-ups"] }] },
-      gym: { title: "Drills", blocks: [{ h: "", items: ["Drills + build-ups | warm-up, then 3 × 20 m build-ups on the turf"] }] }, suggest: "track" },
+      gym: { title: "Loosen up", blocks: [{ h: "", items: ["Bike | 10 min easy", "Leg swings + stretching | 10 min"] }] }, suggest: "track" },
     { off: -1, type: "low", focus: "Pre-meet", why: "Wake the legs up. 40 minutes max.",
       track: { title: "Pre-meet", blocks: [{ h: "", items: ["Build-ups | 2 × 40 m", "Starts | 1–2 × 20 m, then go home"] }] },
-      gym: { title: "Pre-meet", blocks: [{ h: "", items: ["Build-ups | 2 × 20 m", "Floor starts | 1–2 × 20 m, then go home"] }] }, suggest: "track" },
+      gym: { title: "Pre-meet", blocks: [{ h: "", items: ["Bike | 10 min easy", "Box jumps | 2 × 2, then go home"] }] }, suggest: "track" },
     { off: 0, type: "race", focus: "RACE DAY", why: "Nothing new today. Warm up like you always do. Go get it." },
     { off: 1, type: "rest", focus: "Off", why: "Walk, stretch, eat well." }
   ];
@@ -626,11 +613,14 @@
   let startStr = params.get("start") || load("shPlan.start", "") || iso(monday(new Date()));
   let choices = load("speed.choices", {});   // { "2026-11-16": "gym" }
   let done = load("speed.done", {});         // { "2026-11-16|gym|3": true }
+  let shifts = load("speed.shifts", {});     // { "2026-11-16": { days: [0,null,1,...], skipped: [4] } } by week
+  let times = load("speed.times", {});       // { "2026-11-16|track|1": { n: "Flying 20 m", v: "2.31" } }
   let viewStart = monday(new Date());
   let selDay = (new Date().getDay() + 6) % 7;
   if (viewStart < parseISO(startStr)) { viewStart = monday(parseISO(startStr)); selDay = 0; }
 
   const $ = (id) => document.getElementById(id);
+  let currentPlan = null;
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
   function syncUrl() {
@@ -645,10 +635,76 @@
   // "4 × 20 m" stays as is; bold the numbers so the dose is easy to scan.
   const doseHTML = (d) => esc(d).replace(/(\d+(?:–\d+)?(?:\s?×\s?\d+(?:–\d+)?)?(?:\s?(?:sets? of \d+(?:–\d+)?|reps|runs|throws|min|m|s)\b)?)/, "<b>$1</b>");
 
-  function sessionsByDay(plan) {
+  function baseByDay(plan) {
     const byDay = [null, null, null, null, null, null, null];
     plan.sessions.forEach((s) => { byDay[s.day] = s; });
     return byDay;
+  }
+
+  // Applies any "do this today" changes saved for this week.
+  function sessionsByDay(plan) {
+    const base = baseByDay(plan);
+    const sh = shifts[iso(viewStart)];
+    if (!sh || !canShift(plan)) return base;
+    const byId = {};
+    base.forEach((s) => { if (s) byId[s.day] = s; });
+    return sh.days.map((id) => (id === null || id === undefined) ? null : (byId[id] || null));
+  }
+
+  const canShift = (plan) => plan.kind === "base" || plan.kind === "build" || plan.kind === "strength";
+
+  // Lay sessions out from day `from`, never two hard days back to back.
+  // No hard day on Sunday either, because next Monday is hard.
+  // If everything doesn't fit, keep as many hard days as possible, then easy days.
+  function placeOnce(q, from, prevHigh) {
+    const slots = [null, null, null, null, null, null, null];
+    const left = q.slice();
+    let ph = prevHigh;
+    for (let d = from; d <= 6 && left.length; d++) {
+      const highOk = !ph && d <= 5;
+      let pick = left.findIndex((x, i) => i === 0 ? (x.type !== "high" || highOk) : false);
+      if (pick === -1) pick = left.findIndex((x) => x.type !== "high");
+      if (pick === -1) { ph = false; continue; }   // rest day here
+      const s = left.splice(pick, 1)[0];
+      slots[d] = s;
+      ph = s.type === "high";
+    }
+    return { slots, left };
+  }
+
+  function layOut(queue, from, prevHigh) {
+    let best = null;
+    // Try the full list, then with easy days removed one at a time from the end.
+    let q = queue.slice();
+    const dropped = [];
+    for (;;) {
+      const r = placeOnce(q, from, prevHigh);
+      const highs = r.slots.filter((x) => x && x.type === "high").length;
+      const lows = r.slots.filter((x) => x && x.type !== "high").length;
+      if (!best || highs > best.highs || (highs === best.highs && lows > best.lows)) {
+        best = { highs, lows, slots: r.slots, skipped: r.left.concat(dropped) };
+      }
+      const lowIdx = q.map((x) => x.type).lastIndexOf("low");
+      if (lowIdx <= 0) break;
+      dropped.push(q.splice(lowIdx, 1)[0]);
+    }
+    return best;
+  }
+
+  function doToday(plan, chosen) {
+    const todayIdx = (new Date().getDay() + 6) % 7;
+    const current = sessionsByDay(plan);
+    const yesterday = todayIdx > 0 ? current[todayIdx - 1] : null;
+    const yDate = iso(addDays(viewStart, todayIdx - 1));
+    const yDone = yesterday && Object.keys(done).some((k) => k.indexOf(yDate + "|") === 0);
+    const rest = current.slice(todayIdx).filter((x) => x && x !== chosen && x.track);
+    const { slots, skipped } = layOut([chosen].concat(rest), todayIdx, !!(yesterday && yesterday.type === "high" && yDone));
+    // Earlier days keep what was there, except the session that just moved to today.
+    const days = current.map((x, i) => i < todayIdx ? (x && x !== chosen ? x.day : null) : (slots[i] ? slots[i].day : null));
+    shifts[iso(viewStart)] = { days, skipped: skipped.map((x) => x.focus) };
+    save("speed.shifts", shifts);
+    selDay = todayIdx;
+    render();
   }
 
   const choiceFor = (date, s) => choices[iso(date)] || s.suggest || "track";
@@ -679,6 +735,7 @@
     const contest = parseISO(contestStr);
     const start = parseISO(startStr);
     const plan = weekPlan(viewStart, contest, start);
+    currentPlan = plan;
 
     // phase header + progress through the whole plan
     const total = Math.max(1, Math.round(daysBetween(monday(start), monday(contest)) / 7));
@@ -711,6 +768,17 @@
     renderDay(byDay, plan);
   }
 
+  // Holler: time the sprints, keep the best. Times are saved on this phone only.
+  function timeHTML(id, name) {
+    const mine = times[id] ? times[id].v : "";
+    const prev = Object.keys(times)
+      .filter((k) => k !== id && times[k].n === name && parseFloat(times[k].v) > 0)
+      .map((k) => parseFloat(times[k].v));
+    const best = prev.length ? Math.min.apply(null, prev) : null;
+    return '<div class="timer"><label>Best time today <input type="text" inputmode="decimal" placeholder="sec" data-time="' + esc(id) + '" data-name="' + esc(name) + '" value="' + esc(mine) + '"></label>' +
+      (best !== null ? '<span>Your best so far: <b>' + best.toFixed(2) + " s</b></span>" : mine ? "<span>Saved. Beat it next time.</span>" : "<span>First time? Write it down.</span>") + "</div>";
+  }
+
   function renderDay(byDay, plan) {
     const date = addDays(viewStart, selDay);
     const s = byDay[selDay];
@@ -739,6 +807,25 @@
     const v = s[choice];
     const key = iso(date);
 
+    // "Do this today" — only in the current week, on a day that isn't today.
+    const todayIdx = (new Date().getDay() + 6) % 7;
+    const isThisWeek = iso(viewStart) === iso(monday(new Date()));
+    const sh = shifts[iso(viewStart)];
+    let moveHTML = "";
+    if (isThisWeek && canShift(plan)) {
+      if (selDay !== todayIdx) {
+        const yest = todayIdx > 0 ? byDay[todayIdx - 1] : null;
+        const yDone = yest && Object.keys(done).some((k) => k.indexOf(iso(addDays(viewStart, todayIdx - 1)) + "|") === 0);
+        if (s.type === "high" && yest && yest.type === "high" && yDone && yest !== s) {
+          moveHTML = '<div class="move blocked">You did a hard day yesterday. Two hard days in a row isn\'t part of the plan — do an easy day today and this one tomorrow.</div>';
+        } else {
+          moveHTML = '<div class="move"><button type="button" class="btn ghost movebtn" data-today="1">Make this today\'s workout</button><span>The rest of the week moves to fit, keeping hard and easy days apart.</span></div>';
+        }
+      }
+      if (sh) moveHTML += '<div class="move moved"><span>You changed this week' + (sh.skipped && sh.skipped.length ? ". Didn't fit: " + esc(sh.skipped.join(", ")) + "." : ".") + '</span><button type="button" class="linkish" data-undo="1">Undo</button></div>';
+    }
+
+    html += moveHTML;
     html += '<div class="choose" role="group" aria-label="Track or gym">' +
       ["track", "gym"].map((c) => '<button type="button" data-choice="' + c + '" class="' + (c === choice ? "on" : "") + '" aria-pressed="' + (c === choice) + '">' + (c === "track" ? "Track" : "Gym") + "<span>" + (s.suggest === c ? "suggested" : "&nbsp;") + "</span></button>").join("") +
       "</div>";
@@ -758,6 +845,7 @@
           '<button type="button" class="tick" aria-label="Mark done" aria-pressed="' + !!done[id] + '">✓</button>' +
           '<div><div class="name">' + esc(name) + "</div>" + (dose ? '<div class="dose">' + doseHTML(dose) + "</div>" : "") + "</div>" +
           (how ? '<button type="button" class="info" aria-label="How to do it">i</button><div class="explain" hidden>' + esc(how) + "</div>" : "<span></span>") +
+          (dose && /time it/i.test(dose) ? timeHTML(id, name + " " + ((dose.match(/\d+ m\b/) || [""])[0])) : "") +
           "</div>";
         i++;
       });
@@ -784,7 +872,30 @@
     render();
   });
 
+  $("day").addEventListener("change", (e) => {
+    const t = e.target.closest("input[data-time]");
+    if (!t) return;
+    const v = t.value.trim().replace(",", ".");
+    if (v && parseFloat(v) > 0) times[t.dataset.time] = { n: t.dataset.name, v };
+    else delete times[t.dataset.time];
+    save("speed.times", times);
+    render();
+  });
+
   $("day").addEventListener("click", (e) => {
+    if (e.target.closest("input")) return;
+    if (e.target.closest("[data-today]")) {
+      const byDay = sessionsByDay(currentPlan);
+      doToday(currentPlan, byDay[selDay]);
+      window.scrollTo(0, 0);
+      return;
+    }
+    if (e.target.closest("[data-undo]")) {
+      delete shifts[iso(viewStart)];
+      save("speed.shifts", shifts);
+      render();
+      return;
+    }
     const c = e.target.closest("button[data-choice]");
     if (c) {
       choices[iso(addDays(viewStart, selDay))] = c.dataset.choice;
