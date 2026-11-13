@@ -2,530 +2,874 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sprint Training Plan</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16181d">
+<title>Speed Plan</title>
 <style>
-  :root { --hi:#c0392b; --lo:#2471a3; --comp:#7d3c98; --line:#ddd; --bg:#fafafa; }
-  * { box-sizing: border-box; }
-  body { font-family: -apple-system, system-ui, Segoe UI, Roboto, sans-serif; margin: 0; background: var(--bg); color: #222; }
-  header { background: #222; color: #fff; padding: 12px 16px; }
-  header h1 { font-size: 18px; margin: 0 0 8px; }
-  header label { font-size: 14px; margin-right: 8px; }
-  header input[type=date] { font-size: 15px; padding: 4px; }
-  header button { font-size: 14px; padding: 5px 10px; margin-left: 6px; cursor: pointer; }
-  #shareBox { display:none; margin-top:8px; }
-  #shareBox input { width: 100%; max-width: 520px; font-size: 13px; padding: 4px; }
-  .bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 16px; background: #fff; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
-  .bar button { font-size: 16px; padding: 6px 14px; cursor: pointer; }
-  .bar .mid { text-align: center; flex: 1; min-width: 200px; }
-  .bar .wk { font-weight: 600; }
-  .bar .phase { font-size: 14px; color: #555; }
-  .note { margin: 10px 16px; padding: 8px 12px; background: #fff8e1; border: 1px solid #f0d58c; border-radius: 6px; font-size: 14px; }
-  .week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; padding: 12px 16px; }
-  @media (max-width: 900px) { .week { grid-template-columns: 1fr; } }
-  .day { background: #fff; border: 1px solid var(--line); border-radius: 8px; min-height: 90px; padding: 6px; }
-  .day.today { border: 2px solid #222; }
-  .day.over { background: #eef6ff; }
-  .day h3 { margin: 0 0 6px; font-size: 14px; }
-  .day .warn { color: var(--hi); font-size: 12px; margin-bottom: 4px; }
-  .day .rest { color: #999; font-size: 13px; }
-  .card { border-left: 5px solid #999; background: #fdfdfd; border-radius: 6px; padding: 6px 8px; margin-bottom: 6px; box-shadow: 0 1px 2px rgba(0,0,0,.08); cursor: grab; }
-  .card.high { border-color: var(--hi); }
-  .card.low { border-color: var(--lo); }
-  .card.comp { border-color: var(--comp); }
-  .card .t { font-weight: 600; font-size: 14px; }
-  .card .tag { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: #666; }
-  .card details { margin-top: 4px; }
-  .card summary { font-size: 13px; cursor: pointer; color: #333; }
-  .card h4 { font-size: 12px; margin: 6px 0 2px; color: #444; text-transform: uppercase; }
-  .card ul { margin: 0; padding-left: 16px; font-size: 13px; }
-  .card li { margin-bottom: 4px; }
-  .card li b { font-weight: 600; }
-  .card li .dose { display: block; color: #444; }
-  .card .move { margin-top: 6px; font-size: 13px; }
-  .card select { font-size: 13px; }
-  .card .moved { font-size: 11px; color: var(--lo); }
-  .strip { display: flex; gap: 3px; padding: 8px 16px; background: #fff; border-bottom: 1px solid var(--line); overflow-x: auto; }
-  .strip button { flex: 0 0 auto; min-width: 46px; border: 2px solid transparent; border-radius: 4px; padding: 3px 4px; font-size: 11px; line-height: 1.2; cursor: pointer; color: #fff; }
-  .strip button.cur { border-color: #000; }
-  .ph-base { background: #95a5a6; } .ph-hyp { background: #d35400; } .ph-str { background: #27ae60; } .ph-taper { background: #2980b9; } .ph-comp { background: #7d3c98; }
-  .legend { font-size: 13px; color: #444; padding: 2px 16px 8px; background:#fff; border-bottom: 1px solid var(--line); }
-  .legend span { display:inline-block; width:10px; height:10px; border-radius:2px; margin:0 3px 0 10px; vertical-align:middle; }
-  .daytabs { display: none; }
-  @media (max-width: 700px) {
-    header { padding: 10px 12px; }
-    header h1 { font-size: 17px; }
-    .ctl { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .ctl label { display: block; font-size: 12px; margin: 0 0 2px; color: #ccc; }
-    .ctl input[type=date] { width: 100%; font-size: 16px; }
-    .btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 8px; }
-    .btns button { margin: 0; font-size: 14px; padding: 8px 4px; }
-    .bar { position: sticky; top: 0; z-index: 5; padding: 6px 10px; }
-    .bar button { padding: 10px 16px; }
-    .bar .wk { font-size: 15px; }
-    .strip { padding: 6px 10px; }
-    .daytabs { display: flex; gap: 4px; padding: 8px 10px; background: #fff; border-bottom: 1px solid var(--line); }
-    .daytabs button { flex: 1; font-size: 13px; padding: 8px 0; border: 1px solid #ccc; border-radius: 6px; background: #fff; line-height: 1.2; }
-    .daytabs button.has { border-bottom: 4px solid var(--hi); }
-    .daytabs button.haslow { border-bottom: 4px solid var(--lo); }
-    .daytabs button.hascomp { border-bottom: 4px solid var(--comp); }
-    .daytabs button.sel { background: #222; color: #fff; border-color: #222; }
-    .week { padding: 10px; }
-    .week .day { display: none; }
-    .week .day.sel { display: block; }
-    .day h3 { font-size: 17px; }
-    .card .t { font-size: 17px; }
-    .card .tag { font-size: 12px; }
-    .card summary { font-size: 15px; padding: 4px 0; }
-    .card h4 { font-size: 13px; }
-    .card ul { font-size: 16px; padding-left: 20px; }
-    .card li { margin-bottom: 6px; line-height: 1.35; }
-    .card select { font-size: 16px; padding: 4px; }
-    .card .move { font-size: 15px; }
-    .card { cursor: default; }
-    footer { font-size: 15px; }
+  :root {
+    --bg: #f3f4f6;
+    --card: #ffffff;
+    --ink: #16181d;
+    --soft: #5b6270;
+    --line: #e2e5ea;
+    --hard: #d6402b;
+    --hard-bg: #fdecea;
+    --easy: #2a6fdb;
+    --easy-bg: #e9f1fd;
+    --rest: #8a919e;
+    --rest-bg: #eef0f3;
+    --race: #7c3aed;
+    --race-bg: #f2ebfe;
+    --done: #1f9d55;
   }
-  footer { padding: 8px 16px 30px; font-size: 13px; color: #444; }
-  footer details { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; }
-  footer li { margin-bottom: 4px; }
-  .empty { padding: 30px 16px; text-align: center; color: #555; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px;
+    line-height: 1.45;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .wrap { width: min(640px, 100%); margin: 0 auto; padding: 0 14px; }
+  button { font: inherit; color: inherit; }
+
+  /* top */
+  .top { background: var(--ink); color: #fff; padding: calc(10px + env(safe-area-inset-top)) 0 12px; }
+  .top-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .top h1 { font-size: 20px; margin: 0; letter-spacing: .2px; }
+  .gear { background: none; border: 1px solid rgba(255,255,255,.35); color: #fff; border-radius: 999px; padding: 5px 13px; font-size: 14px; cursor: pointer; }
+  .phase { margin-top: 10px; }
+  .phase-name { font-weight: 700; font-size: 15px; text-transform: uppercase; letter-spacing: .6px; }
+  .phase-sub { font-size: 14px; color: #c9ced8; }
+  .track { margin-top: 8px; height: 6px; background: rgba(255,255,255,.15); border-radius: 99px; overflow: hidden; }
+  .track i { display: block; height: 100%; background: #fff; border-radius: 99px; }
+
+  /* week nav */
+  .weeknav { display: flex; align-items: center; justify-content: space-between; margin: 14px 0 8px; }
+  .weeknav button { background: var(--card); border: 1px solid var(--line); border-radius: 10px; width: 44px; height: 40px; font-size: 18px; cursor: pointer; }
+  .weeknav .lbl { text-align: center; font-weight: 600; font-size: 15px; }
+  .weeknav .lbl small { display: block; font-weight: 400; color: var(--soft); font-size: 13px; }
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+  .days button {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 6px 0 7px; cursor: pointer; line-height: 1.15; font-size: 13px; color: var(--soft);
+    border-top: 4px solid var(--rest);
+  }
+  .days button b { display: block; font-size: 16px; color: var(--ink); }
+  .days button.high { border-top-color: var(--hard); }
+  .days button.low { border-top-color: var(--easy); }
+  .days button.race { border-top-color: var(--race); }
+  .days button.sel { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .days button.sel b { color: #fff; }
+  .days button.today:not(.sel) { outline: 2px solid var(--ink); outline-offset: -1px; }
+  .days button .dot { display: block; height: 6px; margin-top: 3px; font-size: 11px; }
+  .days button.alldone .dot::before { content: "✓"; color: var(--done); font-weight: 700; }
+  .days button.sel.alldone .dot::before { color: #8fe3b0; }
+  .mix { font-size: 13px; color: var(--soft); text-align: center; margin: 8px 0 0; }
+
+  /* day */
+  .day { background: var(--card); border-radius: 16px; margin: 14px 0; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .band { padding: 14px 16px 14px; }
+  .band.high { background: var(--hard-bg); }
+  .band.low { background: var(--easy-bg); }
+  .band.rest { background: var(--rest-bg); }
+  .band.race { background: var(--race-bg); }
+  .kind { font-size: 13px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+  .band.high .kind { color: var(--hard); }
+  .band.low .kind { color: var(--easy); }
+  .band.rest .kind { color: var(--rest); }
+  .band.race .kind { color: var(--race); }
+  .focus { font-size: 30px; font-weight: 800; line-height: 1.05; margin: 4px 0 6px; }
+  .why { margin: 0; color: var(--soft); font-size: 15px; }
+
+  .choose { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 14px 16px 4px; }
+  .choose button {
+    border: 2px solid var(--line); background: var(--card); border-radius: 12px; padding: 10px 6px 9px;
+    font-weight: 700; font-size: 17px; cursor: pointer; position: relative;
+  }
+  .choose button span { display: block; font-weight: 400; font-size: 12px; color: var(--soft); }
+  .choose button.on { border-color: var(--ink); background: var(--ink); color: #fff; }
+  .choose button.on span { color: #c9ced8; }
+  .choose-note { font-size: 13px; color: var(--soft); padding: 4px 16px 0; margin: 0; }
+
+  .session { padding: 6px 16px 16px; }
+  .stitle { font-size: 19px; font-weight: 700; margin: 12px 0 2px; }
+  .stime { font-size: 14px; color: var(--soft); margin: 0 0 6px; }
+  details.warm { margin: 8px 0 4px; background: var(--bg); border-radius: 10px; padding: 8px 12px; }
+  details.warm summary { cursor: pointer; font-weight: 600; font-size: 15px; }
+  details.warm ul { margin: 6px 0 2px; padding-left: 18px; font-size: 15px; }
+  .bh { font-size: 12px; font-weight: 800; letter-spacing: .9px; text-transform: uppercase; color: var(--soft); margin: 16px 0 4px; }
+  .step { display: grid; grid-template-columns: 34px 1fr auto; gap: 0 10px; align-items: start; padding: 10px 0; border-top: 1px solid var(--line); }
+  .tick {
+    width: 30px; height: 30px; border-radius: 50%; border: 2px solid #c3c8d1; background: none; cursor: pointer;
+    display: grid; place-items: center; font-size: 16px; color: transparent; padding: 0; margin-top: 1px;
+  }
+  .step.done .tick { background: var(--done); border-color: var(--done); color: #fff; }
+  .step.done .name, .step.done .dose { opacity: .45; }
+  .name { font-weight: 650; font-size: 17px; }
+  .dose { font-size: 16px; color: var(--soft); }
+  .dose b { color: var(--ink); font-weight: 600; }
+  .info { background: none; border: 1px solid var(--line); border-radius: 999px; width: 30px; height: 30px; cursor: pointer; color: var(--soft); font-size: 14px; font-weight: 700; }
+  .explain { grid-column: 2 / 4; margin-top: 6px; font-size: 15px; background: var(--bg); border-radius: 8px; padding: 8px 10px; }
+  .tip { font-size: 14px; color: var(--soft); background: var(--bg); border-radius: 10px; padding: 10px 12px; margin-top: 14px; }
+  .next { font-size: 14px; color: var(--soft); padding: 0 16px 16px; margin: 0; }
+
+  .restmsg { padding: 6px 16px 18px; font-size: 16px; }
+  .restmsg ul { padding-left: 18px; margin: 6px 0; }
+
+  /* settings */
+  .panel { background: var(--card); border-radius: 16px; padding: 14px 16px; margin: 14px 0; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .panel h2 { font-size: 19px; margin: 0 0 10px; }
+  .field { display: block; margin-bottom: 12px; font-weight: 600; font-size: 15px; }
+  .field input { display: block; width: 100%; margin-top: 4px; font: inherit; font-weight: 400; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink); min-height: 46px; }
+  .btn { display: inline-block; background: var(--ink); color: #fff; border: 0; border-radius: 10px; padding: 12px 18px; font-weight: 700; cursor: pointer; }
+  .btn.ghost { background: none; color: var(--ink); border: 1px solid var(--line); font-weight: 600; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .share { width: 100%; margin-top: 8px; font-size: 13px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; }
+  .key { list-style: none; padding: 0; margin: 0; font-size: 15px; }
+  .key li { padding: 7px 0; border-top: 1px solid var(--line); }
+  .key b { display: inline-block; min-width: 118px; }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+
+  .welcome { text-align: left; }
+  .welcome p { color: var(--soft); margin-top: 0; }
+
+  @media (min-width: 700px) {
+    .focus { font-size: 34px; }
+  }
 </style>
 </head>
 <body>
-<header>
-  <h1>Sprint Training Plan</h1>
-  <span class="ctl">
-    <span><label for="contest">Contest date:</label> <input type="date" id="contest"></span>
-    <span><label for="start">Plan start:</label> <input type="date" id="start"></span>
-  </span>
-  <span class="btns">
-    <button id="todayBtn">This week</button>
-    <button id="shareBtn">Share link</button>
-    <button id="resetBtn" title="Undo day changes for this week">Reset week</button>
-  </span>
-  <div id="shareBox"><input id="shareUrl" readonly></div>
+
+<header class="top">
+  <div class="wrap">
+    <div class="top-row">
+      <h1>Speed Plan</h1>
+      <button class="gear" id="gearBtn" type="button">Settings</button>
+    </div>
+    <div class="phase" id="phaseBox" hidden>
+      <div class="phase-name" id="phaseName"></div>
+      <div class="phase-sub" id="phaseSub"></div>
+      <div class="track"><i id="phaseBar"></i></div>
+    </div>
+  </div>
 </header>
 
-<div class="bar">
-  <button id="prev" aria-label="Previous week">&#9664;</button>
-  <div class="mid"><div class="wk" id="wkLabel"></div><div class="phase" id="phaseLabel"></div></div>
-  <button id="next" aria-label="Next week">&#9654;</button>
-</div>
-<div id="strip" class="strip"></div>
-<div class="legend"><b>Build</b> = add muscle · <b>Strength</b> = heavier + faster · <b>Taper</b> = rest up · <b>Race</b></div>
-<div id="daytabs" class="daytabs"></div>
-<div id="notes"></div>
-<div id="week" class="week"></div>
+<main class="wrap">
 
-<footer>
-  <details>
-    <summary><b>Rules</b></summary>
-    <ul>
-      <li><b>Red = hard day, blue = easy day.</b> No two red days in a row.</li>
-      <li><b>Sprints first.</b> All-out, full rest. Slower than usual? Cut the lifting, not the rest.</li>
-      <li><b>%</b> = percent of the most you can lift once on that exercise. Don't know it? Pick a weight that's hard on the last rep, but every rep is clean.</li>
-      <li><b>Isometrics:</b> push against something that won't move. "All-out" = as hard as you can for the whole hold. "Fast" = hit max force as quick as possible.</li>
-      <li><b>Did it on another day?</b> Change the Day menu.</li>
+  <section class="panel welcome" id="welcome" hidden>
+    <h2>When's your big race?</h2>
+    <p>Pick the date you want to be fastest. The plan works backward from it: build muscle, get strong and fast, then rest up.</p>
+    <label class="field">Race date <input type="date" id="welcomeDate"></label>
+    <button class="btn" type="button" id="welcomeGo">Build my plan</button>
+  </section>
+
+  <section id="planView" hidden>
+    <div class="weeknav">
+      <button type="button" id="prev" aria-label="Previous week">‹</button>
+      <div class="lbl" id="weekLbl"></div>
+      <button type="button" id="next" aria-label="Next week">›</button>
+    </div>
+    <div class="days" id="days"></div>
+    <p class="mix" id="mix"></p>
+
+    <article class="day" id="day"></article>
+  </section>
+
+  <section class="panel" id="settings" hidden>
+    <h2>Settings</h2>
+    <label class="field">Race date <input type="date" id="contest"></label>
+    <label class="field">Plan started (week of) <input type="date" id="start"></label>
+    <div class="row">
+      <button class="btn ghost" type="button" id="todayBtn">Go to today</button>
+      <button class="btn ghost" type="button" id="shareBtn">Copy share link</button>
+      <button class="btn ghost" type="button" id="resetBtn">Clear this week's ticks</button>
+    </div>
+    <input class="share" id="shareUrl" readonly hidden>
+
+    <h2 style="margin-top:18px">How to read this</h2>
+    <ul class="key">
+      <li><b><span class="sw" style="background:var(--hard)"></span>Hard day</b> Go all-out, rest fully between reps. Never two in a row.</li>
+      <li><b><span class="sw" style="background:var(--easy)"></span>Easy day</b> Stay relaxed. You should finish feeling better than you started.</li>
+      <li><b>Track or Gym</b> Pick one each day. The suggested one is marked, but either works.</li>
+      <li><b>4 × 20 m</b> 4 sprints of 20 meters.</li>
+      <li><b>3 sets of 8</b> Do 8 reps, rest, three times.</li>
+      <li><b>Leave 2 in the tank</b> Stop when you could still do 2 more good reps. Pick a weight where that's true.</li>
+      <li><b>Rest 4 min</b> Really rest the full time. Short rest on sprints makes you slower, not tougher.</li>
+      <li><b>ⓘ</b> Tap it on any exercise for how to do it.</li>
+      <li><b>Hurts?</b> Pain (not just tired) means stop that exercise and tell your coach or a parent.</li>
     </ul>
-  </details>
-</footer>
+  </section>
+
+</main>
 
 <script>
 (function () {
-  var DAYS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
-  var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  var DAY_MS = 86400000;
+  "use strict";
 
-  // ---------- storage (safe) ----------
-  function load(key, fallback) {
-    try { var v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; }
-  }
-  function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+  /* ---------------- dates ---------------- */
 
-  // ---------- dates (local, no timezone drift) ----------
-  function parseISO(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
-  function iso(d) { return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
-  function monday(d) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
-  function addDays(d, n) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; }
-  function daysBetween(a, b) { return Math.round((b - a) / DAY_MS); }
-  function fmt(d) { return DAYS[(d.getDay() + 6) % 7] + " " + MONTHS[d.getMonth()] + " " + d.getDate(); }
+  const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const DAYS_LONG = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const DAY_MS = 86400000;
 
-  // ---------- plan content ----------
-  var GYM = "Gym", OUT = "Outside";
-  var NO_OUT = "Stuck inside? | Treadmill 4 × 6 s all-out, rest 4 min";
+  const parseISO = (s) => { const p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); };
+  const iso = (d) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const monday = (d) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; };
+  const addDays = (d, n) => { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; };
+  const daysBetween = (a, b) => Math.round((b - a) / DAY_MS);
+  const short = (d) => MONTHS[d.getMonth()] + " " + d.getDate();
 
-  // %1RM from reps + reps left (reps-to-failure), per RPE/%1RM table; >10 RTF extrapolated
-  var RTF = [100, 95, 91, 87, 85, 83, 81, 79, 76, 73];
-  function pctOf(reps, left) {
-    var n = reps + left, v;
-    if (n <= 10) { var lo = Math.floor(n), hi = Math.ceil(n); v = RTF[lo - 1] + (RTF[hi - 1] - RTF[lo - 1]) * (n - lo); }
-    else v = 73 - 2.2 * (n - 10);
-    return Math.round(v);
-  }
-  function L(left) { return left === 0.5 ? "to failure or 1 short" : "stop " + (left === 1.5 ? "1–2" : left) + " short of failure"; }
-  function X(reps, left, of) { return "~" + pctOf(reps, left) + "%" + (of ? " " + of : ""); }
+  /* ---------------- storage ---------------- */
 
-  var HYP = {
-    0: { pct: .7, eN: 2, mr: 5, ml: 4, e: "2 left", m: "70%", rdl: "60%", spr: .75, plyo: "box", heavy: 0, nordic: "2 × 4", label: "Base" },
-    1: { pct: .6, eN: 3, mr: 5, ml: 4, e: "3 left", m: "70%", rdl: "60%", spr: .65, plyo: "inplace", heavy: 0, nordic: "2 × 3", label: "easy start" },
-    2: { pct: .75, eN: 2, mr: 5, ml: 3, e: "2 left", m: "72%", rdl: "60%", spr: .8, plyo: "box", heavy: 5, nordic: "3 × 3", label: "build" },
-    3: { pct: .9, eN: 1.5, mr: 5, ml: 2, e: "1–2 left", m: "75%", rdl: "62%", spr: .9, plyo: "short", heavy: 6, nordic: "3 × 4", label: "build" },
-    4: { pct: 1, eN: 1, mr: 4, ml: 2, e: "1 left", m: "77%", rdl: "65%", spr: 1, plyo: "depth", heavy: 6, nordic: "3 × 5", label: "full" },
-    5: { pct: 1.1, eN: 0.5, mr: 3, ml: 2, e: "0–1 left", m: "80%", rdl: "67%", spr: 1, plyo: "bounds", heavy: 6, nordic: "3 × 5", label: "hardest week" },
-    6: { pct: .5, eN: 3, mr: 5, ml: 6, e: "3 left", m: "65%", rdl: "55%", spr: .7, plyo: "inplace", heavy: 0, nordic: "2 × 3", label: "easy week" }
-  };
+  const load = (k, f) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : f; } catch (e) { return f; } };
+  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 
-  var UPPER_A = function (n) { return ["DB incline press | " + n + " × 10 · " + X(10, 1.5), "Bent-over row (barbell or DB) | " + n + " × 10 · " + X(10, 1.5), "Pull-ups | " + n + " × 6–10", "Lateral raise | 2 × 15 · " + X(15, 1.5), "Ab wheel | 3 × 8", "Side plank | 3 × 30 s each"]; };
-  var UPPER_B = function (n) { return ["DB shoulder press | " + n + " × 8 · " + X(8, 1.5), "Cable row | " + n + " × 10 · " + X(10, 1.5), "Dips | 2 × (2 short of max)", "Curls + triceps | 2 × 12 each · " + X(12, 1.5), "Suitcase carry | 3 × 20 m each", "Pallof press | 3 × 10 each"]; };
-  function easyA(n) { return ["Bike or rower | " + n + " rounds × 2: 30 s smooth / 30 s easy"]; }
-  function easyB(n) { return ["Rower or bike | " + n + " rounds: 1 min steady / 1 min easy", "Mini hurdle walkovers | 3 passes"]; }
+  /* ---------------- words ---------------- */
 
-  function hypWeek(h) {
-    var p = HYP[h];
-    function I(s) { return Math.max(1, p.pct > 1 ? Math.ceil(s * p.pct) : Math.round(s * p.pct)); }
-    function C(s) { return p.pct <= .5 ? Math.ceil(s / 2) : (p.pct < .7 ? s - 1 : s); }
-    function r(n) { return Math.max(1, Math.round(n * p.spr)); }
-    var up = p.pct <= .5 ? 2 : 3;
-    var aL = (h === 1 || h === 6) ? 3 : 2;   // other multi-joint lifts
-    var isoN = h === 1 ? 3 : h === 6 ? 2 : 4;
-    var isoE = h === 1 ? "hard push (~80%)" : "all-out push";
-    var e = p.eN;
+  // "leave N in the tank" instead of percentages and RPE.
+  const T = (left) => "leave " + (left === 0.5 ? "0–1" : left === 1.5 ? "1–2" : left) + " in the tank";
 
-    var weight = h === 1 ? ["Week 1 | Find your weights. Write them down."]
-      : h === 6 ? ["Easy week | Go lighter. Don't add weight."]
-      : ["Add weight | All reps easy last week? +5–10 lb on main lifts, +5 lb on the rest."];
+  const WARM_TRACK = [
+    "Jog 400 m easy",
+    "Drills, 20 m each: A-skips, high knees, butt kicks, skips for height",
+    "Leg swings, 10 each way",
+    "Build-ups: 3 × 40 m, a little faster each time"
+  ];
+  const WARM_GYM = [
+    "Bike or rower 5 min easy",
+    "Leg swings and walking lunges, 10 each",
+    "Drills on the turf: A-skips and high knees, 2 × 15 m",
+    "Build-ups: 3 × 20 m on the turf"
+  ];
+  const WARM_EASY = ["Jog or bike 5 min", "Leg swings, 10 each way"];
 
-    var plyoMon = p.plyo === "inplace" ? ["Box jumps | 3 × 3", "Pogo hops | 3 × 10"]
-      : ["Box jumps | 3 × 3", "Broad jumps | 4 × 3", "Hurdle hops | 4 × 5"];
-    var plyoWed = {
-      inplace: ["Ankle hops | 3 × 15", "Hurdle hops | 3 × 5"],
-      box: ["Ankle hops | 3 × 15", "Hurdle hops | 3 × 5", "Box jumps | 2 × 3"],
-      short: ["Drop + stick (low box) | 2 × 4", "Hurdle hops | 4 × 5"],
-      depth: ["Drop + stick (low box) | 2 × 4", "Depth jumps (low box) | 3 × 4"],
-      bounds: ["Depth jumps (low box) | 3 × 4", "Bounds | 3 × 20 m"]
-    }[p.plyo];
+  /* ---------------- how-to explanations ---------------- */
+  // Matched against the exercise name, first match wins.
 
-
-    var curve = h === 1 ? [] : ["Curve treadmill all-out | " + (h === 6 ? 2 : 3) + " × 6 s · rest 4 min"];
-    var friSpeed = p.heavy
-      ? ["Slope starts | " + r(4) + " × 10 m · rest 90 s", "Heavy sled | " + p.heavy + " × 15 m · rest 3–4 min", "Floor starts | 2 × 20 m · rest 3 min"].concat(curve)
-      : ["Slope starts | " + r(6) + " × 10 m · rest 90 s", "Floor starts | " + r(3) + " × 20 m · rest 3 min"].concat(curve);
-
-    var wed = ["Mini hurdle runs | 4", "Flying 20 m (30 m run-in) | " + Math.max(2, r(4)) + " · rest 6–8 min · TIME IT"];
-    if (h >= 3 && h <= 5) wed.push("Sprint-float-sprint | 2 × 60 m · rest 8 min");
-    wed.push(NO_OUT);
-
-    return [
-      { id: "mon", day: 0, type: "high", loc: GYM, title: "Speed + Legs A", blocks: [
-        { h: "Sprint", items: (["Slope starts | " + r(5) + " × 10 m · rest 90 s", "Light sled | " + r(4) + " × 15 m · rest 3 min", "Floor starts | " + r(4) + " × 20 m · rest 3 min"]) },
-        { h: "Jumps", items: plyoMon },
-        { h: "Isometrics", items: ["Iso mid-thigh pull (trap bar vs. pins) | " + isoN + " × 5 s · " + isoE + " · rest 60 s", "Iso calf hold (heel just off step, heavy) | " + (h === 6 ? 2 : 3) + " × 20–30 s"] },
-        { h: "Lift", items: [
-          "Trap-bar deadlift | " + C(4) + " × " + p.mr + " · " + X(p.mr, p.ml, "of max"),
-          "Split squat (back foot up) | " + C(3) + " × 8 each · " + X(8, aL),
-          "Hip thrust | " + I(3) + " × 10 · " + X(10, e),
-          "Cable knee drive | " + I(3) + " × 10 each · " + X(10, e),
-          "Copenhagen plank | " + I(3) + " × 20–30 s each",
-          "Calf raise | 2 × 10 · " + X(10, 2) + " · slow down"].concat(weight) }
-      ]},
-      { id: "tue", day: 1, type: "low", loc: GYM, title: "Easy + Upper", blocks: [
-        { h: "Easy cardio", items: easyA(Math.max(5, Math.round(8 * p.spr))) },
-        { h: "Lift", items: UPPER_A(up) }
-      ]},
-      { id: "wed", day: 2, type: "high", loc: OUT, title: "Top Speed + Legs B", blocks: [
-        { h: "Sprint (outside)", items: wed },
-        { h: "Jumps", items: plyoWed },
-        { h: "Isometrics (gym)", items: ["Iso split-squat push (Smith bar pinned, front knee ~90°) | " + Math.max(2, isoN - 1) + " × 5 s each leg · " + isoE] },
-        { h: "Lift (gym)", items: [
-          "Trap-bar jump | " + C(4) + " × 3 · 20–30% of max · jump high",
-          "1-leg DB RDL | " + C(3) + " × 6 each · " + X(6, aL + 1),
-          "Hanging knee raise | " + I(3) + " × 10–12 · add ankle weight when easy",
-          "Reverse hyper | " + I(3) + " × 12",
-          "Med-ball throw backward | 2 × 4"] }
-      ]},
-      { id: "thu", day: 3, type: "low", loc: GYM, title: "Easy + Upper", blocks: [
-        { h: "Easy cardio", items: easyB(Math.max(4, Math.round(8 * p.spr))) },
-        { h: "Lift", items: UPPER_B(up) }
-      ]},
-      { id: "fri", day: 4, type: "high", loc: GYM, title: (p.heavy ? "Sled" : "Hills") + " + Legs C", blocks: [
-        { h: "Sprint", items: friSpeed },
-        { h: "Jumps", items: ["Box jumps | 3 × 3", "Skips for height | 2 × 20 m"] },
-        { h: "Isometrics", items: ["Iso hamstring push (heel on box, hips up, knee slightly bent) | " + Math.max(2, isoN - 1) + " × 5 s each leg · " + isoE] },
-        { h: "Lift", items: [
-          "RDL | " + C(4) + " × 8 · " + X(8, aL, "of RDL max"),
-          "Seated leg curl | " + I(3) + " × 12 · " + X(12, e),
-          "Nordics | " + p.nordic,
-          "Walking lunge | " + C(2) + " × 10 each · " + X(10, aL),
-          "Cable knee drive | " + I(3) + " × 10 each · " + X(10, e),
-          "Lumbar extension (45° bench, Poliquin style) | " + I(3) + " × 10 · 3-sec lower, squeeze at top · hold a plate when easy"].concat(weight, p.heavy ? ["Sled | Feels easy? Add 10 lb."] : []) }
-      ]}
-    ];
-  }
-
-  function strengthWeek(n) {
-    var pct = ["85%", "87%", "90%"][n - 1], rdl = ["68%", "70%", "72%"][n - 1];
-    return [
-      { id: "mon", day: 0, type: "high", loc: GYM, title: "Speed + Strength", blocks: [
-        { h: "Sprint", items: ["Slope starts | 4 × 10 m · rest 90 s", "Light sled | 3 × 15 m · rest 3 min", "Floor starts | 5 × 20 m · TIME last 2"] },
-        { h: "Jumps", items: ["Standing triple jump | 4 × 2", "Hurdle hops | 4 × 5", "Box jumps | 3 × 3"] },
-        { h: "Isometrics", items: ["Iso mid-thigh pull (trap bar vs. pins) | 5 × 3 s · hit max force FAST · rest 60 s", "Iso calf hold (heavy) | 3 × 20 s"] },
-        { h: "Lift", items: ["Trap-bar deadlift | 4 × 3 · " + pct + " of max", "Split squat | 3 × 5 each · " + X(5, 2), "Hip thrust | 2 × 6 · " + X(6, 2), "Cable knee drive | 2 × 8 each · " + X(8, 2), "Copenhagen plank | 2 × 20 s each", "Add weight | Moving fast? +5–10 lb next week."] }
-      ]},
-      { id: "tue", day: 1, type: "low", loc: GYM, title: "Easy + Upper", blocks: [
-        { h: "Easy cardio", items: easyA(6) }, { h: "Lift", items: UPPER_A(2) }
-      ]},
-      { id: "wed", day: 2, type: "high", loc: OUT, title: "Top Speed + Race Starts", blocks: [
-        { h: "Sprint (outside)", items: ["Mini hurdle runs | 4", "Flying " + (n >= 2 ? "30" : "20") + " m | 3 · rest 8 min · TIME IT", "Race starts | 2 × 40 m · rest 5 min", "Hard runs | " + (n === 1 ? "2 × 60 m" : "2 × 80 m") + " · rest 8–10 min", "Stuck inside? | Treadmill 3 × 6 s + 2 × 8 s, rest 5 min"] },
-        { h: "Lift (gym)", items: ["Trap-bar jump | 4 × 3 · 20–30% of max", "1-leg DB RDL | 2 × 5 each · " + X(5, 3), "Hanging knee raise | 2 × 10", "Reverse hyper | 2 × 10", "Med-ball throw | 2 × 4"] }
-      ]},
-      { id: "thu", day: 3, type: "low", loc: GYM, title: "Easy + Upper", blocks: [
-        { h: "Easy cardio", items: easyB(6) }, { h: "Lift", items: UPPER_B(2) }
-      ]},
-      { id: "fri", day: 4, type: "high", loc: GYM, title: "Treadmill + Hamstrings", blocks: [
-        { h: "Sprint", items: ["Slope starts | 3 × 10 m", "Curve treadmill all-out | 3 × " + (n === 1 ? "7" : "9") + " s · rest 6–8 min"] },
-        { h: "Jumps", items: ["Depth jumps (low box) | 3 × 4", "Box jumps | 3 × 3"] },
-        { h: "Isometrics", items: ["Iso hamstring push | 3 × 3 s each leg · hit max force FAST"] },
-        { h: "Lift", items: ["RDL | 3 × 5 · " + X(5, 2, "of RDL max"), "Seated leg curl | 2 × 8 · " + X(8, 2), "Nordics | 2 × 4", "Cable knee drive | 2 × 8 each · " + X(8, 2), "Lumbar extension (Poliquin style) | 2 × 8 · hold a plate"] }
-      ]}
-    ];
-  }
-
-  function taperWeek() {
-    return [
-      { id: "mon", day: 0, type: "high", loc: GYM, title: "Sharpen", blocks: [
-        { h: "Sprint", items: ["Floor starts | 4 × 20 m · rest 3 min", "Curve treadmill | 2 × 6 s · rest 4 min"] },
-        { h: "Lift", items: ["Box jumps | 3 × 3", "Trap-bar jump | 3 × 3 · 20–30% of max", "Iso mid-thigh pull | 3 × 3 s · fast", "Trap-bar deadlift | 2 × 3 · 80% of max · fast", "Nordics | 1 × 3"] }
-      ]},
-      { id: "tue", day: 1, type: "low", loc: GYM, title: "Easy", blocks: [{ h: "", items: ["Bike or rower | 15 min easy", "Upper body | 2 easy sets each"] }] },
-      { id: "wed", day: 2, type: "high", loc: OUT, title: "Race Starts", blocks: [
-        { h: "Sprint (outside)", items: ["Starts | 3 × 30 m · rest 4 min", "Race starts | 2 × 40 m · rest 6 min", "Flying 20 m | 1", "Stuck inside? | 4 × 20 m starts + 2 × 6 s treadmill"] },
-        { h: "Lift", items: ["Trap-bar jump | 2 × 3"] }
-      ]},
-      { id: "thu", day: 3, type: "low", loc: GYM, title: "Easy", blocks: [{ h: "", items: ["Rower | 10–12 min easy", "Mini hurdle walkovers | 3 passes"] }] },
-      { id: "fri", day: 4, type: "high", loc: GYM, title: "Quick Starts", blocks: [{ h: "Sprint", items: ["Floor starts | 3 × 20 m, then done"] }] }
-    ];
-  }
-
-  var COMP = [
-    { off: -5, type: "high", loc: "", title: "Last Speed Day", blocks: [{ h: "", items: ["Outside | 3 × 30 m starts + 2 flying 20 m", "Or gym | 4 × 20 m starts + 3 × 6 s treadmill", "Trap-bar jump | 2 × 3"] }] },
-    { off: -4, type: "low", loc: GYM, title: "Easy", blocks: [{ h: "", items: ["Bike | 15–20 min easy"] }] },
-    { off: -3, type: "high", loc: GYM, title: "Quick Starts", blocks: [{ h: "", items: ["Floor starts | 4 × 20 m", "Curve treadmill | 1 × 6 s"] }] },
-    { off: -2, type: "low", loc: "", title: "Light", blocks: [{ h: "", items: ["Light | Drills + 2–3 build-ups"] }] },
-    { off: -1, type: "low", loc: "", title: "Pre-Meet", blocks: [{ h: "", items: ["Pre-meet | 2 build-ups, 1–2 starts. 40 min max."] }] },
-    { off: 0, type: "comp", loc: "Meet", title: "RACE DAY", blocks: [{ h: "", items: ["Race | Go get it."] }] },
-    { off: 1, type: "low", loc: "", title: "Off", blocks: [{ h: "", items: ["Off | Walk + stretch"] }] }
+  const HOW = [
+    ["flying", "Run 30 m to build up speed, then sprint the next 20 m all-out. Only the fast part counts. If someone can time it, time the fast part."],
+    ["sprint-float-sprint", "Sprint 20 m, then hold that speed but relax for 20 m (float), then sprint the last 20 m. Teaches you to stay fast and loose."],
+    ["mini hurdle", "Set 8–10 mini hurdles (or cones) about 6.5–7 ft apart. Run through them fast and tall, quick feet, one step between each."],
+    ["release run", "A partner holds your belt (or a band around your waist) and leans back while you drive for 10 m, then lets go and you sprint 20 m more."],
+    ["resisted", "Sprint with a light sled or belt resistance. If it turns into a slow march, it's too heavy. You should still look like a sprinter."],
+    ["hill sprint", "Find a hill that isn't too steep. Sprint up all-out, walk down slowly. The hill makes you push low and hard like the start of a race."],
+    ["crouch start", "Three-point start: one hand on the ground, feet staggered. Push out low and let your body rise naturally over the first 10–15 m."],
+    ["race start", "Start the way you would in a race (blocks if you have them), and run through the finish line at full speed."],
+    ["slope start", "Sprint starts up a gentle ramp or slope. Stay low, push the ground back hard."],
+    ["floor start", "Three-point start on the turf (one hand down), then sprint."],
+    ["heavy sled", "Sled loaded so you're moving at about half your normal speed. Push hard, stay low. Rest fully — this is strength work."],
+    ["light sled", "Sled light enough that you still look like you're sprinting. Rest fully between reps."],
+    ["curve treadmill", "The curved self-powered treadmill. All-out means you drive the belt as hard as you can. Rest fully."],
+    ["bend run", "Start on the curve of the track and run through the straight. That's how the 200 is run. Lean slightly from your ankles into the turn."],
+    ["fast 60", "Sprint 60 m from a standing start at about 95%: fast, but relaxed in the face and shoulders."],
+    ["fast 80", "Sprint 80 m at about 95%: fast, but relaxed. Hold your form to the end."],
+    ["speed endurance", "Sprint at about 95%. The goal is holding your speed to the end, not dying at 80 m. Full rest — this is the hardest workout of the week."],
+    ["150", "Sprint at about 95%, starting on the curve. Hold form to the line. Full rest between."],
+    ["200 rehearsal", "Run a 200 like a race, at about 95%. Time it. This is race practice."],
+    ["tempo", "Run on grass at an easy-fast pace (about 70%) — smooth, not sprinting. Walk back between reps. You should be able to talk right after."],
+    ["circuit", "Go through every exercise, rest a minute, then go again. Smooth and controlled, not a race."],
+    ["hurdle mobility", "Set up 5–6 hurdles. Step over them sideways (overs), then duck under (unders). Slow and controlled."],
+    ["broad jump", "Two-foot jump forward as far as you can. Land softly and stick it."],
+    ["triple jump", "Standing start, then hop, step and jump. Land on both feet."],
+    ["hurdle hop", "Two-foot hops over 4–6 low hurdles in a row. Spend as little time on the ground as possible."],
+    ["pogo", "Small, quick bounces on the balls of your feet, knees nearly straight. Like a pogo stick."],
+    ["ankle hop", "Small, quick bounces on the balls of your feet, knees nearly straight. Like a pogo stick."],
+    ["bounds", "Big exaggerated running strides, pushing off each leg for distance. Stay tall."],
+    ["drop + stick", "Step off a low box, land on both feet and freeze. Teaches landing."],
+    ["depth jump", "Step off a low box, and the instant you land, jump up as high as you can."],
+    ["box jump", "Jump up onto a box, land softly, step down. Height of the box doesn't matter much — jumping fast does."],
+    ["skips for height", "Skip, but drive your knee up and jump as high as you can on each skip."],
+    ["med-ball", "Throw a medicine ball as far as you can — explode with your hips and legs, not just your arms."],
+    ["trap-bar deadlift", "Stand inside the hex bar, chest up, back flat, drive through the floor to stand up."],
+    ["trap-bar jump", "Hold a light trap bar and jump as high as you can. Land softly. Light weight, fast jump."],
+    ["split squat", "One foot forward, back foot up on a bench. Lower until your back knee nearly touches, then drive up."],
+    ["hip thrust", "Upper back on a bench, bar across your hips. Drive your hips up and squeeze your glutes at the top."],
+    ["knee drive", "Cable or band around your foot. Drive your knee up fast like you're sprinting, control it back down."],
+    ["copenhagen", "Side plank with your top leg on a bench and bottom leg hanging. Works the inner thigh (groin)."],
+    ["calf raise", "Up on your toes, then lower slowly for 3 seconds."],
+    ["iso mid-thigh", "Isometric: pull up on a bar that's pinned and can't move. Pull as hard as you can for the whole time."],
+    ["iso calf", "Isometric: stand on the edge of a step holding heavy weight, heels just below the step. Hold still."],
+    ["iso split-squat", "Isometric: split-squat position under a pinned bar. Push up as hard as you can — it won't move. Hold."],
+    ["iso hamstring", "Isometric: lie on your back, heel on a box, hips up. Push your heel down into the box as hard as you can. Hold."],
+    ["1-leg", "Single-leg Romanian deadlift: stand on one leg, hinge forward with a flat back until you feel the hamstring stretch, stand back up."],
+    ["rdl", "Romanian deadlift: knees soft, push your hips back, slide the bar down your thighs until you feel the hamstrings, stand back up."],
+    ["leg curl", "Machine leg curl. Control the way back down."],
+    ["nordic", "Kneel with your ankles held down. Lower your body forward as slowly as you can, catch yourself with your hands. Best hamstring injury prevention there is."],
+    ["walking lunge", "Long steps forward, back knee nearly to the floor."],
+    ["knee raise", "Hang from a bar, raise your knees to your chest, lower slowly. No swinging."],
+    ["reverse hyper", "Lie face down on the machine and lift your legs behind you with your glutes and lower back."],
+    ["lumbar extension", "45° back-extension bench. Lower for 3 seconds, raise up and squeeze at the top."],
+    ["incline press", "Dumbbell press on a bench set at a slight incline."],
+    ["row", "Pull the weight to your stomach, squeeze your shoulder blades together."],
+    ["pull-up", "Hang from the bar, pull your chin over it. Use a band if you need help."],
+    ["lateral raise", "Light dumbbells, raise them out to the sides to shoulder height."],
+    ["ab wheel", "Roll out as far as you can while keeping your back flat, roll back in."],
+    ["side plank", "Hold a straight line from head to feet, on your elbow and the side of your foot."],
+    ["shoulder press", "Dumbbells at your shoulders, press overhead."],
+    ["dips", "On parallel bars, lower until your upper arms are level, press back up."],
+    ["suitcase carry", "Heavy dumbbell in one hand, walk tall without leaning."],
+    ["pallof", "Stand sideways to a cable, hold the handle at your chest and press it straight out. Don't let it twist you."],
+    ["bike sprint", "On a bike or air bike, go as hard as you can for the time, then pedal easy."]
   ];
 
-  // Hypertrophy weeks used when fewer than 6 are available (compressed block)
-  var SEQ = { 1: [2], 2: [1, 4], 3: [1, 3, 4], 4: [1, 3, 4, 6], 5: [1, 2, 4, 5, 6], 6: [1, 2, 3, 4, 5, 6] };
+  const howTo = (name) => {
+    const n = name.toLowerCase();
+    const hit = HOW.find(([k]) => n.includes(k));
+    return hit ? hit[1] : "";
+  };
 
-  // ---------- phase logic ----------
-  function weekPlan(weekStart, contest, start) {
-    var k = Math.round(daysBetween(weekStart, monday(contest)) / 7);
-    var sessions, label;
-    var kStart = Math.round(daysBetween(monday(start), monday(contest)) / 7);
-    var H = Math.max(0, Math.min(6, kStart - 4));
-    if (k < 0) return { k: k, label: "Contest is over. Enter the next date.", sessions: [] };
-    if (k > kStart) return { k: k, label: "Before the plan start date", sessions: [] };
-    if (k === 0) { sessions = []; label = "Race week"; }
-    else if (k === 1) { sessions = taperWeek(); label = "Taper · rest up, stay sharp"; }
-    else if (k <= 4) { var n = 5 - k; sessions = strengthWeek(n); label = "Get strong + fast · week " + n + " of 3"; }
-    else if (k <= 4 + H) { var i = 4 + H - k; var h = SEQ[H][i]; sessions = hypWeek(h); label = "Build muscle · week " + (i + 1) + " of " + H + " (" + HYP[h].label + ")"; }
-    else { sessions = hypWeek(0); label = "Base · get ready to train"; }
+  /* ---------------- phases ---------------- */
 
-    if (k <= 1) {
-      // Replace days from contest-5 onward with contest-anchored sessions
-      var cutoff = addDays(contest, -5);
-      sessions = sessions.filter(function (s) { return addDays(weekStart, s.day) < cutoff; });
-      COMP.forEach(function (c) {
-        var d = addDays(contest, c.off);
-        var idx = daysBetween(weekStart, d);
-        if (idx >= 0 && idx <= 6) sessions.push({ id: "c" + c.off, day: idx, type: c.type, loc: c.loc, title: c.title, blocks: c.blocks });
-      });
-    }
-    return { k: k, label: label, sessions: sessions };
+  // Build weeks: progression from the original plan.
+  const HYP = {
+    0: { pct: .7, eN: 2, mr: 5, ml: 4, spr: .75, plyo: "box", heavy: 0, nordic: "2 sets of 4", label: "Base" },
+    1: { pct: .6, eN: 3, mr: 5, ml: 4, spr: .65, plyo: "inplace", heavy: 0, nordic: "2 sets of 3", label: "easy start" },
+    2: { pct: .75, eN: 2, mr: 5, ml: 3, spr: .8, plyo: "box", heavy: 5, nordic: "3 sets of 3", label: "build" },
+    3: { pct: .9, eN: 1.5, mr: 5, ml: 2, spr: .9, plyo: "short", heavy: 6, nordic: "3 sets of 4", label: "build" },
+    4: { pct: 1, eN: 1, mr: 4, ml: 2, spr: 1, plyo: "depth", heavy: 6, nordic: "3 sets of 5", label: "full" },
+    5: { pct: 1.1, eN: 0.5, mr: 3, ml: 2, spr: 1, plyo: "bounds", heavy: 6, nordic: "3 sets of 5", label: "hardest week" },
+    6: { pct: .5, eN: 3, mr: 5, ml: 6, spr: .7, plyo: "inplace", heavy: 0, nordic: "2 sets of 3", label: "easy week" }
+  };
+
+  // Compressed build when fewer than 6 weeks are available.
+  const SEQ = { 1: [2], 2: [1, 4], 3: [1, 3, 4], 4: [1, 3, 4, 6], 5: [1, 2, 4, 5, 6], 6: [1, 2, 3, 4, 5, 6] };
+
+  const PHASE_NAMES = {
+    base: "Base", build: "Build muscle", strength: "Strong + fast", taper: "Taper", race: "Race week"
+  };
+
+  /* ---------------- sessions ---------------- */
+  // Every training day has a track version and a gym version. He does one.
+
+  function buildParams(h) {
+    const p = HYP[h];
+    return {
+      p,
+      h,
+      r: (n) => Math.max(1, Math.round(n * p.spr)),
+      I: (s) => Math.max(1, p.pct > 1 ? Math.ceil(s * p.pct) : Math.round(s * p.pct)),
+      C: (s) => p.pct <= .5 ? Math.ceil(s / 2) : (p.pct < .7 ? s - 1 : s),
+      aL: (h === 1 || h === 6) ? 3 : 2,
+      isoN: h === 1 ? 3 : h === 6 ? 2 : 4,
+      isoE: h === 1 ? "hard push, not max" : "push as hard as you can",
+      up: p.pct <= .5 ? 2 : 3,
+      weightNote: h === 1 ? "First week: find your weights and write them down."
+        : h === 6 ? "Easy week: go lighter, don't add weight."
+        : "Every rep felt easy last week? Add 5–10 lb on the big lifts."
+    };
   }
 
-  // ---------- state ----------
-  var params = new URLSearchParams(location.search);
-  var contestStr = params.get("contest") || load("shPlan.contest", "");
-  var startStr = params.get("start") || load("shPlan.start", "") || iso(monday(new Date()));
-  var overrides = load("shPlan.overrides", {});
-  var mq = window.matchMedia("(max-width: 700px)");
-  var selDay = (new Date().getDay() + 6) % 7;
-  if (mq.addEventListener) mq.addEventListener("change", function () { render(); });
-  var viewStart = monday(new Date());
+  const UPPER_A = (n) => [
+    "DB incline press | " + n + " sets of 10 · " + T(1.5),
+    "Row (barbell or DB) | " + n + " sets of 10 · " + T(1.5),
+    "Pull-ups | " + n + " sets of 6–10",
+    "Lateral raise | 2 sets of 15",
+    "Ab wheel | 3 sets of 8",
+    "Side plank | 3 × 30 s each side"
+  ];
+  const UPPER_B = (n) => [
+    "DB shoulder press | " + n + " sets of 8 · " + T(1.5),
+    "Cable row | " + n + " sets of 10 · " + T(1.5),
+    "Dips | 2 sets, stop 2 short of max",
+    "Curls + triceps | 2 sets of 12 each",
+    "Suitcase carry | 3 × 20 m each hand",
+    "Pallof press | 3 sets of 10 each side"
+  ];
 
-  if (viewStart < parseISO(startStr)) viewStart = parseISO(startStr);
-  var contestInput = document.getElementById("contest");
-  contestInput.value = contestStr;
-  var startInput = document.getElementById("start");
-  startInput.value = startStr;
+  const tempo = (sets, reps) => "Tempo 100s on grass | " + (sets > 1 ? sets + " sets of " : "") + reps + " × 100 m · easy-fast, about 70% · walk 30 s between" + (sets > 1 ? ", 3 min between sets" : "");
+
+  const CIRCUIT_A = ["Push-ups | 2 sets of 15", "Walking lunges | 2 sets of 10 each leg", "Sit-ups | 2 sets of 20", "Prisoner squats | 2 sets of 15"];
+  const CIRCUIT_B = ["Hurdle mobility | 3 passes of overs and unders", "Med-ball throws, easy | 2 sets of 8", "Side plank | 2 × 30 s each side", "Glute bridges | 2 sets of 15"];
+
+  function trainingWeek(ph) {
+    // ph: { kind: "base"|"build"|"strength"|"taper", h, n }
+    const out = [];
+    const k = ph.kind;
+
+    /* ----- MONDAY: acceleration ----- */
+    let accTrack, accGym;
+    if (k === "base" || k === "build") {
+      const b = buildParams(ph.h), p = b.p;
+      const jumps = p.plyo === "inplace" ? ["Pogo hops | 3 × 10", "Broad jumps | 3 × 3"] : ["Broad jumps | 4 × 3", "Hurdle hops | 3 × 5"];
+      accTrack = {
+        title: "Starts + hills",
+        blocks: [
+          { h: "Sprints", items: ["Hill sprints | " + b.r(6) + " × 20 m · all-out · walk down + rest 3 min", "Crouch starts | " + b.r(4) + " × 20 m · rest 3 min"].concat(p.heavy ? ["Resisted sprints (belt or light sled) | " + b.r(4) + " × 20 m · rest 3 min"] : []) },
+          { h: "Jumps + throws", items: jumps.concat(["Med-ball throw forward | 6 throws"]) }
+        ]
+      };
+      accGym = {
+        title: "Starts + legs A",
+        blocks: [
+          { h: "Sprints", items: ["Slope starts | " + b.r(5) + " × 10 m · rest 90 s", (p.heavy ? "Heavy sled | " + p.heavy : "Light sled | " + b.r(4)) + " × 15 m · rest 3 min", "Floor starts | " + b.r(3) + " × 20 m · rest 3 min"] },
+          { h: "Jumps", items: p.plyo === "inplace" ? ["Box jumps | 3 × 3", "Pogo hops | 3 × 10"] : ["Box jumps | 3 × 3", "Broad jumps | 3 × 3"] },
+          { h: "Lift", items: [
+            "Trap-bar deadlift | " + b.C(4) + " sets of " + p.mr + " · " + T(p.ml),
+            "Split squat (back foot up) | " + b.C(3) + " sets of 8 each leg · " + T(b.aL),
+            "Hip thrust | " + b.I(3) + " sets of 10 · " + T(p.eN),
+            "Iso mid-thigh pull | " + b.isoN + " × 5 s · " + b.isoE + " · rest 60 s",
+            "Copenhagen plank | " + b.I(3) + " × 20–30 s each side",
+            "Calf raise | 2 sets of 10 · slow down"
+          ] }
+        ],
+        tip: b.weightNote
+      };
+    } else if (k === "strength") {
+      const n = ph.n, pct = ["85%", "87%", "90%"][n - 1];
+      accTrack = {
+        title: "Starts",
+        blocks: [
+          { h: "Sprints", items: ["Crouch starts | 4 × 20 m · rest 3 min", "Crouch starts | 3 × 30 m · rest 4 min · time the last 2", "Release runs | 3 × 30 m · rest 4 min"] },
+          { h: "Jumps + throws", items: ["Standing triple jump | 4 × 2", "Hurdle hops | 4 × 5", "Med-ball throw forward | 6 throws"] }
+        ]
+      };
+      accGym = {
+        title: "Starts + strength",
+        blocks: [
+          { h: "Sprints", items: ["Slope starts | 4 × 10 m · rest 90 s", "Light sled | 3 × 15 m · rest 3 min", "Floor starts | 4 × 20 m · rest 3 min"] },
+          { h: "Jumps", items: ["Standing triple jump | 3 × 2", "Box jumps | 3 × 3"] },
+          { h: "Lift", items: [
+            "Trap-bar deadlift | 4 sets of 3 · heavy, about " + pct + " of your max · move it fast",
+            "Split squat | 3 sets of 5 each leg · " + T(2),
+            "Hip thrust | 2 sets of 6 · " + T(2),
+            "Iso mid-thigh pull | 5 × 3 s · hit max force fast · rest 60 s",
+            "Copenhagen plank | 2 × 20 s each side"
+          ] }
+        ],
+        tip: "Moving fast? Add 5–10 lb next week."
+      };
+    } else {
+      accTrack = { title: "Sharp starts", blocks: [{ h: "Sprints", items: ["Crouch starts | 4 × 20 m · rest 3 min", "Crouch starts | 2 × 30 m · rest 4 min"] }, { h: "Jumps", items: ["Broad jumps | 2 × 2"] }] };
+      accGym = { title: "Sharp starts + light lift", blocks: [
+        { h: "Sprints", items: ["Floor starts | 4 × 20 m · rest 3 min", "Curve treadmill | 2 × 6 s all-out · rest 4 min"] },
+        { h: "Lift", items: ["Box jumps | 3 × 3", "Trap-bar jump | 3 × 3 · light", "Trap-bar deadlift | 2 sets of 3 · about 80% · fast", "Nordics | 1 set of 3"] }
+      ] };
+    }
+    out.push({ day: 0, type: "high", focus: "Acceleration", why: "Getting out fast. The first 30 m of every race.", track: accTrack, gym: accGym, suggest: (k === "base" || k === "build") ? "gym" : "track" });
+
+    /* ----- TUESDAY + THURSDAY: easy ----- */
+    const easySets = k === "taper" ? 1 : k === "strength" ? 1 : (ph.h === 1 || ph.h === 6) ? 1 : 2;
+    const easyReps = k === "taper" ? 6 : (k === "strength" || ph.h === 1 || ph.h === 6) ? 8 : 6;
+    const upN = k === "strength" ? 2 : k === "taper" ? 1 : buildParams(ph.h).up;
+    const cardio = k === "taper" ? 4 : k === "strength" ? 6 : Math.max(5, Math.round(8 * HYP[ph.h].spr));
+
+    out.push({ day: 1, type: "low", focus: "Easy day", why: "Recover from yesterday so tomorrow can be fast. Stay relaxed.",
+      track: { title: "Tempo + circuit", blocks: [{ h: "Run", items: [tempo(easySets, easyReps)] }, { h: "Circuit", items: CIRCUIT_A }] },
+      gym: { title: "Easy cardio + upper body", blocks: [{ h: "Cardio", items: ["Bike or rower | " + cardio + " rounds of 30 s smooth / 30 s easy"] }, { h: "Lift", items: k === "taper" ? ["Upper body | 2 easy sets of each from your usual"] : UPPER_A(upN) }] },
+      suggest: "gym" });
+
+    /* ----- WEDNESDAY: max velocity ----- */
+    let mvTrack, mvGym;
+    if (k === "base" || k === "build") {
+      const b = buildParams(ph.h), p = b.p;
+      const items = ["Mini hurdle runs | 4 runs", "Flying 20 m | " + Math.max(2, b.r(4)) + " reps · rest 6–8 min · time it"];
+      if (ph.h >= 3 && ph.h <= 5) items.push("Sprint-float-sprint | 2 × 60 m · rest 8 min");
+      const plyo = {
+        inplace: ["Ankle hops | 3 × 15", "Hurdle hops | 3 × 5"],
+        box: ["Ankle hops | 3 × 15", "Hurdle hops | 3 × 5", "Broad jumps | 2 × 3"],
+        short: ["Hurdle hops | 4 × 5", "Broad jumps | 3 × 3"],
+        depth: ["Hurdle hops | 4 × 5", "Bounds | 2 × 20 m"],
+        bounds: ["Hurdle hops | 3 × 5", "Bounds | 3 × 20 m"]
+      }[p.plyo];
+      mvTrack = { title: "Top speed", blocks: [{ h: "Sprints", items }, { h: "Jumps", items: plyo }] };
+      mvGym = {
+        title: "Treadmill speed + legs B",
+        blocks: [
+          { h: "Sprints", items: ["Curve treadmill | " + Math.max(2, b.r(4)) + " × 6 s all-out · rest 4–5 min"] },
+          { h: "Jumps", items: p.plyo === "inplace" ? ["Pogo hops | 3 × 10"] : ["Drop + stick (low box) | 2 × 4", "Depth jumps (low box) | " + (p.plyo === "depth" || p.plyo === "bounds" ? "3 × 4" : "2 × 3")] },
+          { h: "Lift", items: [
+            "Trap-bar jump | " + b.C(4) + " sets of 3 · light · jump high",
+            "1-leg DB RDL | " + b.C(3) + " sets of 6 each leg · " + T(b.aL + 1),
+            "Iso split-squat push | " + Math.max(2, b.isoN - 1) + " × 5 s each leg · " + b.isoE,
+            "Hanging knee raise | " + b.I(3) + " sets of 10–12",
+            "Reverse hyper | " + b.I(3) + " sets of 12",
+            "Med-ball throw backward | 2 × 4"
+          ] }
+        ],
+        tip: b.weightNote
+      };
+    } else if (k === "strength") {
+      const n = ph.n;
+      mvTrack = { title: "Top speed", blocks: [
+        { h: "Sprints", items: ["Mini hurdle runs | 4 runs", "Flying " + (n >= 2 ? "30" : "20") + " m | 3 reps · rest 8 min · time it", "Sprint-float-sprint | 2 × 60 m · rest 8 min"] },
+        { h: "Jumps", items: ["Bounds | 3 × 20 m", "Hurdle hops | 3 × 5"] }
+      ] };
+      mvGym = { title: "Treadmill speed + legs B", blocks: [
+        { h: "Sprints", items: ["Curve treadmill | 3 × 6 s + 2 × 8 s all-out · rest 5 min"] },
+        { h: "Lift", items: ["Trap-bar jump | 4 sets of 3 · light · jump high", "1-leg DB RDL | 2 sets of 5 each leg · " + T(3), "Hanging knee raise | 2 sets of 10", "Reverse hyper | 2 sets of 10", "Med-ball throw backward | 2 × 4"] }
+      ] };
+    } else {
+      mvTrack = { title: "Top speed, short", blocks: [{ h: "Sprints", items: ["Mini hurdle runs | 3 runs", "Flying 20 m | 2 reps · rest 6 min"] }] };
+      mvGym = { title: "Treadmill speed, short", blocks: [{ h: "Sprints", items: ["Curve treadmill | 3 × 6 s all-out · rest 4 min"] }, { h: "Lift", items: ["Trap-bar jump | 2 sets of 3 · light"] }] };
+    }
+    out.push({ day: 2, type: "high", focus: "Max speed", why: "Your top speed — the middle of the 100 and the straight of the 200.", track: mvTrack, gym: mvGym, suggest: "track" });
+
+    out.push({ day: 3, type: "low", focus: "Easy day", why: "Recover so Friday's 200 work can be your best.",
+      track: { title: "Tempo + mobility", blocks: [{ h: "Run", items: [tempo(easySets, easyReps)] }, { h: "Circuit", items: CIRCUIT_B }] },
+      gym: { title: "Easy cardio + upper body", blocks: [{ h: "Cardio", items: ["Rower or bike | " + Math.max(4, cardio - 1) + " rounds of 1 min steady / 1 min easy"] }, { h: "Lift", items: k === "taper" ? ["Upper body | 2 easy sets of each from your usual"] : UPPER_B(upN) }] },
+      suggest: "gym" });
+
+    /* ----- FRIDAY: 200 speed endurance ----- */
+    let seRuns, seGymRuns;
+    if (k === "base") {
+      seRuns = ["Fast 60s | 3 × 60 m · about 95% · rest 6 min", "Bend run | 1 × 100 m · about 95% · rest 8 min before it"];
+      seGymRuns = ["Curve treadmill | 3 × 10 s all-out · rest 6 min"];
+    } else if (k === "build") {
+      seRuns = {
+        1: ["Fast 60s | 2 × 60 m · about 95% · rest 6 min", "Bend run | 1 × 100 m · rest 8 min before it"],
+        2: ["Fast 80s | 3 × 80 m · about 95% · rest 8 min"],
+        3: ["Fast 80s | 2 × 80 m · about 95% · rest 8 min", "Bend run | 1 × 120 m · rest 10 min before it"],
+        4: ["Fast 80s | 2 × 80 m · about 95% · rest 8 min", "Bend run | 1 × 120 m · rest 10 min before it"],
+        5: ["Bend runs | 2 × 120 m · about 95% · rest 10–12 min", "Fast 80 | 1 × 80 m · rest 8 min before it"],
+        6: ["Fast 60s | 2 × 60 m · about 95% · rest 6 min"]
+      }[ph.h];
+      seGymRuns = ["Curve treadmill | " + (ph.h === 1 || ph.h === 6 ? 2 : 3) + " × 10 s all-out · rest 6–8 min"];
+    } else if (k === "strength") {
+      seRuns = {
+        1: ["Speed endurance 120s | 3 × 120 m · start on the bend · rest 10–12 min · time it"],
+        2: ["150s | 2 × 150 m · start on the bend · rest 15 min · time it", "Fast 80 | 1 × 80 m · rest 8 min before it"],
+        3: ["200 rehearsal | 1 × 200 m · about 95% · time it", "Bend run | 1 × 120 m · rest 20 min before it"]
+      }[ph.n];
+      seGymRuns = ["Curve treadmill | 3 × " + (ph.n === 1 ? 12 : 15) + " s all-out · rest 8–10 min"];
+    } else {
+      seRuns = ["Bend runs | 2 × 120 m · about 95% · rest 12 min · relaxed fast, not strained"];
+      seGymRuns = ["Curve treadmill | 2 × 10 s · rest 8 min"];
+    }
+
+    const seLift = (k === "base" || k === "build") ? (() => {
+      const b = buildParams(ph.h), p = b.p;
+      return [
+        "RDL | " + b.C(4) + " sets of 8 · " + T(b.aL),
+        "Seated leg curl | " + b.I(3) + " sets of 12 · " + T(p.eN),
+        "Nordics | " + p.nordic,
+        "Walking lunge | " + b.C(2) + " sets of 10 each leg · " + T(b.aL),
+        "Iso hamstring push | " + Math.max(2, b.isoN - 1) + " × 5 s each leg · " + b.isoE,
+        "Lumbar extension | " + b.I(3) + " sets of 10 · 3 s down"
+      ];
+    })() : k === "strength"
+      ? ["RDL | 3 sets of 5 · " + T(2), "Seated leg curl | 2 sets of 8 · " + T(2), "Nordics | 2 sets of 4", "Iso hamstring push | 3 × 3 s each leg · fast", "Lumbar extension | 2 sets of 8"]
+      : ["Nordics | 1 set of 3"];
+
+    out.push({ day: 4, type: "high", focus: "200 speed", why: "Holding your speed to the line. This is the 200, and the end of the 100.",
+      track: { title: "Speed endurance", blocks: [
+        { h: "Sprints", items: seRuns },
+        { h: "Cool down", items: ["Walk 400 m, then easy stretching | 10 min"] }
+      ], tip: "Hardest day of the week. Rest the full time between runs. If you're slower than usual, stop — don't grind." },
+      gym: { title: "Treadmill 200 work + legs C", blocks: [
+        { h: "Sprints", items: seGymRuns },
+        { h: "Lift", items: seLift }
+      ], tip: "The track version is better for the 200. Use this when you can't get to a track." },
+      suggest: "track" });
+
+    return out;
+  }
+
+  // Race week, built backward from the race date.
+  const COMP = [
+    { off: -5, type: "high", focus: "Last speed day", why: "Last fast work before the race. Short and sharp.",
+      track: { title: "Starts + flys", blocks: [{ h: "Sprints", items: ["Crouch starts | 3 × 30 m · rest 4 min", "Flying 20 m | 2 reps · rest 6 min"] }] },
+      gym: { title: "Starts + treadmill", blocks: [{ h: "Sprints", items: ["Floor starts | 4 × 20 m · rest 3 min", "Curve treadmill | 3 × 6 s · rest 4 min"] }, { h: "Lift", items: ["Trap-bar jump | 2 sets of 3 · light"] }] }, suggest: "track" },
+    { off: -4, type: "low", focus: "Easy day", why: "Loosen up.",
+      track: { title: "Easy tempo", blocks: [{ h: "Run", items: ["Tempo 100s on grass | 6 × 100 m · easy · walk back"] }] },
+      gym: { title: "Easy bike", blocks: [{ h: "Cardio", items: ["Bike | 15–20 min easy"] }] }, suggest: "gym" },
+    { off: -3, type: "high", focus: "Quick starts", why: "A few fast starts to stay sharp. Done in 30 minutes.",
+      track: { title: "Quick starts", blocks: [{ h: "Sprints", items: ["Crouch starts | 4 × 20 m · rest 3 min"] }] },
+      gym: { title: "Quick starts", blocks: [{ h: "Sprints", items: ["Floor starts | 4 × 20 m · rest 3 min", "Curve treadmill | 1 × 6 s"] }] }, suggest: "track" },
+    { off: -2, type: "low", focus: "Light day", why: "Feel bouncy, not tired.",
+      track: { title: "Drills", blocks: [{ h: "", items: ["Drills + build-ups | warm-up, then 3 × 40 m build-ups"] }] },
+      gym: { title: "Drills", blocks: [{ h: "", items: ["Drills + build-ups | warm-up, then 3 × 20 m build-ups on the turf"] }] }, suggest: "track" },
+    { off: -1, type: "low", focus: "Pre-meet", why: "Wake the legs up. 40 minutes max.",
+      track: { title: "Pre-meet", blocks: [{ h: "", items: ["Build-ups | 2 × 40 m", "Starts | 1–2 × 20 m, then go home"] }] },
+      gym: { title: "Pre-meet", blocks: [{ h: "", items: ["Build-ups | 2 × 20 m", "Floor starts | 1–2 × 20 m, then go home"] }] }, suggest: "track" },
+    { off: 0, type: "race", focus: "RACE DAY", why: "Nothing new today. Warm up like you always do. Go get it." },
+    { off: 1, type: "rest", focus: "Off", why: "Walk, stretch, eat well." }
+  ];
+
+  /* ---------------- plan logic ---------------- */
+
+  function weekPlan(weekStart, contest, start) {
+    const k = Math.round(daysBetween(weekStart, monday(contest)) / 7);
+    const kStart = Math.round(daysBetween(monday(start), monday(contest)) / 7);
+    const H = Math.max(0, Math.min(6, kStart - 4));
+    let sessions = [], kind, label, sub = "";
+
+    if (k < 0) return { k, kind: "over", label: "Race is done", sub: "Set your next race date in Settings.", sessions: [] };
+    if (k > kStart) return { k, kind: "before", label: "Before the plan starts", sub: "", sessions: [] };
+
+    if (k === 0) { kind = "race"; label = PHASE_NAMES.race; }
+    else if (k === 1) { kind = "taper"; sessions = trainingWeek({ kind }); label = PHASE_NAMES.taper; sub = "Rest up, stay sharp"; }
+    else if (k <= 4) { const n = 5 - k; kind = "strength"; sessions = trainingWeek({ kind, n }); label = PHASE_NAMES.strength; sub = "Week " + n + " of 3"; }
+    else if (k <= 4 + H) { const i = 4 + H - k; const h = SEQ[H][i]; kind = "build"; sessions = trainingWeek({ kind, h }); label = PHASE_NAMES.build; sub = "Week " + (i + 1) + " of " + H + (HYP[h].label === "build" || HYP[h].label === "full" ? "" : " · " + HYP[h].label); }
+    else { kind = "base"; sessions = trainingWeek({ kind, h: 0 }); label = PHASE_NAMES.base; sub = "Getting ready to train"; }
+
+    if (k <= 1) {
+      const cutoff = addDays(contest, -5);
+      sessions = sessions.filter((s) => addDays(weekStart, s.day) < cutoff);
+      COMP.forEach((c) => {
+        const idx = daysBetween(weekStart, addDays(contest, c.off));
+        if (idx >= 0 && idx <= 6) sessions.push(Object.assign({}, c, { day: idx }));
+      });
+    }
+    return { k, kind, label, sub, sessions };
+  }
+
+  /* ---------------- state ---------------- */
+
+  const params = new URLSearchParams(location.search);
+  let contestStr = params.get("contest") || load("shPlan.contest", "");
+  let startStr = params.get("start") || load("shPlan.start", "") || iso(monday(new Date()));
+  let choices = load("speed.choices", {});   // { "2026-11-16": "gym" }
+  let done = load("speed.done", {});         // { "2026-11-16|gym|3": true }
+  let viewStart = monday(new Date());
+  let selDay = (new Date().getDay() + 6) % 7;
+  if (viewStart < parseISO(startStr)) { viewStart = monday(parseISO(startStr)); selDay = 0; }
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
   function syncUrl() {
-    var u = new URL(location.href);
+    const u = new URL(location.href);
     if (contestStr) u.searchParams.set("contest", contestStr); else u.searchParams.delete("contest");
     u.searchParams.set("start", startStr);
     history.replaceState(null, "", u.toString());
   }
-  startInput.addEventListener("change", function () {
-    if (!startInput.value) return;
-    startStr = iso(monday(parseISO(startInput.value))); startInput.value = startStr;
-    save("shPlan.start", startStr); syncUrl(); render();
-  });
 
-  contestInput.addEventListener("change", function () {
-    contestStr = contestInput.value;
-    save("shPlan.contest", contestStr);
-    syncUrl(); render();
-  });
-  document.getElementById("prev").onclick = function () { viewStart = addDays(viewStart, -7); selDay = 0; render(); };
-  document.getElementById("next").onclick = function () { viewStart = addDays(viewStart, 7); selDay = 0; render(); };
-  document.getElementById("todayBtn").onclick = function () { selDay = (new Date().getDay() + 6) % 7; viewStart = monday(new Date()); if (viewStart < parseISO(startStr)) viewStart = parseISO(startStr); render(); };
-  document.getElementById("resetBtn").onclick = function () {
-    var w = iso(viewStart);
-    Object.keys(overrides).forEach(function (key) { if (key.indexOf(w + "|") === 0) delete overrides[key]; });
-    save("shPlan.overrides", overrides); render();
-  };
-  document.getElementById("shareBtn").onclick = function () {
-    var u = new URL(location.href.split("?")[0]);
-    if (contestStr) u.searchParams.set("contest", contestStr);
-    u.searchParams.set("start", startStr);
-    var box = document.getElementById("shareBox"), inp = document.getElementById("shareUrl");
-    inp.value = u.toString(); box.style.display = "block"; inp.select();
-    try { navigator.clipboard.writeText(inp.value); document.getElementById("shareBtn").textContent = "Copied!"; setTimeout(function () { document.getElementById("shareBtn").textContent = "Share link"; }, 1500); } catch (e) {}
-  };
+  /* ---------------- render ---------------- */
 
-  function setDay(key, dayIdx) { overrides[key] = dayIdx; save("shPlan.overrides", overrides); render(); }
+  // "4 × 20 m" stays as is; bold the numbers so the dose is easy to scan.
+  const doseHTML = (d) => esc(d).replace(/(\d+(?:–\d+)?(?:\s?×\s?\d+(?:–\d+)?)?(?:\s?(?:sets? of \d+(?:–\d+)?|reps|runs|throws|min|m|s)\b)?)/, "<b>$1</b>");
 
-  // ---------- render ----------
-  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function sessionsByDay(plan) {
+    const byDay = [null, null, null, null, null, null, null];
+    plan.sessions.forEach((s) => { byDay[s.day] = s; });
+    return byDay;
+  }
 
-  function renderStrip(contest, start) {
-    var strip = document.getElementById("strip"); strip.innerHTML = "";
-    var kStart = Math.round(daysBetween(monday(start), monday(contest)) / 7);
-    for (var k = kStart; k >= 0; k--) {
-      var ws = addDays(monday(contest), -7 * k);
-      var pl = weekPlan(ws, contest, start);
-      var cls = k === 0 ? "comp" : k === 1 ? "taper" : k <= 4 ? "str" : /^Build/.test(pl.label) ? "hyp" : "base";
-      var short = { comp: "Race", taper: "Taper", str: "Strength", hyp: "Build", base: "Base" }[cls];
-      var m = pl.label.match(/week (\d+) of (\d+)/);
-      var b = el("button", "ph-" + cls + (iso(ws) === iso(viewStart) ? " cur" : ""));
-      b.innerHTML = "";
-      b.appendChild(document.createTextNode(short + (m ? " wk " + m[1] : "")));
-      b.appendChild(el("br"));
-      b.appendChild(document.createTextNode(MONTHS[ws.getMonth()] + " " + ws.getDate()));
-      b.title = pl.label;
-      (function (d) { b.onclick = function () { viewStart = d; selDay = 0; render(); }; })(ws);
-      strip.appendChild(b);
-    }
-    var cur = strip.querySelector(".cur");
-    if (cur) strip.scrollLeft = cur.offsetLeft - strip.clientWidth / 2 + cur.offsetWidth / 2;
+  const choiceFor = (date, s) => choices[iso(date)] || s.suggest || "track";
+
+  function stepCount(s, choice) {
+    const v = s[choice];
+    return v ? v.blocks.reduce((n, b) => n + b.items.length, 0) : 0;
+  }
+
+  function isDayDone(date, s) {
+    if (!s || !s.track) return false;
+    const c = choiceFor(date, s);
+    const n = stepCount(s, c);
+    for (let i = 0; i < n; i++) if (!done[iso(date) + "|" + c + "|" + i]) return false;
+    return n > 0;
   }
 
   function render() {
-    var weekEl = document.getElementById("week"), notes = document.getElementById("notes");
-    weekEl.innerHTML = ""; notes.innerHTML = "";
-    document.getElementById("wkLabel").textContent = fmt(viewStart) + " – " + fmt(addDays(viewStart, 6));
-
     if (!contestStr) {
-      document.getElementById("phaseLabel").textContent = "";
-      document.getElementById("strip").innerHTML = "";
-      document.getElementById("daytabs").innerHTML = "";
-      var m = el("div", "empty", "Enter the contest date above to build the plan.");
-      weekEl.appendChild(m); return;
+      $("welcome").hidden = false;
+      $("planView").hidden = true;
+      $("phaseBox").hidden = true;
+      return;
     }
-    var contest = parseISO(contestStr);
-    renderStrip(contest, parseISO(startStr));
-    var plan = weekPlan(viewStart, contest, parseISO(startStr));
-    document.getElementById("phaseLabel").textContent = plan.label + (plan.k > 0 ? " · " + plan.k + " weeks to race" : "");
+    $("welcome").hidden = true;
+    $("planView").hidden = false;
 
-    var kS = Math.round(daysBetween(monday(parseISO(startStr)), monday(contest)) / 7);
-    if (kS >= 0 && kS < 5) notes.appendChild(el("div", "note", "Under 5 weeks to go: skipping the muscle block."));
+    const contest = parseISO(contestStr);
+    const start = parseISO(startStr);
+    const plan = weekPlan(viewStart, contest, start);
 
-    // place sessions with overrides
-    var wkKey = iso(viewStart);
-    var byDay = [[], [], [], [], [], [], []];
-    plan.sessions.forEach(function (s) {
-      var key = wkKey + "|" + s.id;
-      var d = (key in overrides) ? overrides[key] : s.day;
-      byDay[d].push({ s: s, key: key, moved: d !== s.day });
-    });
+    // phase header + progress through the whole plan
+    const total = Math.max(1, Math.round(daysBetween(monday(start), monday(contest)) / 7));
+    const doneWeeks = Math.min(total, Math.max(0, total - plan.k));
+    $("phaseBox").hidden = false;
+    $("phaseName").textContent = plan.label;
+    $("phaseSub").textContent = [plan.sub, plan.k > 0 ? plan.k + (plan.k === 1 ? " week" : " weeks") + " to race day (" + short(contest) + ")" : plan.k === 0 ? "Race: " + DAYS_LONG[(contest.getDay() + 6) % 7] + " " + short(contest) : ""].filter(Boolean).join(" · ");
+    $("phaseBar").style.width = Math.round((doneWeeks / total) * 100) + "%";
 
-    // high-day collision warnings
-    function isHigh(d) { return byDay[d].some(function (x) { return x.s.type === "high" || x.s.type === "comp"; }); }
-    function highCount(d) { return byDay[d].filter(function (x) { return x.s.type === "high" || x.s.type === "comp"; }).length; }
+    // week nav
+    const thisWeek = iso(viewStart) === iso(monday(new Date()));
+    $("weekLbl").innerHTML = (thisWeek ? "This week" : esc(short(viewStart) + " – " + short(addDays(viewStart, 6)))) +
+      (thisWeek ? "<small>" + esc(short(viewStart) + " – " + short(addDays(viewStart, 6))) + "</small>" : "");
 
-    var todayIso = iso(new Date());
-    var tabs = document.getElementById("daytabs"); tabs.innerHTML = "";
-    for (var t = 0; t < 7; t++) {
-      var types = byDay[t].map(function (x) { return x.s.type; });
-      var tc = types.indexOf("comp") >= 0 ? " hascomp" : types.indexOf("high") >= 0 ? " has" : types.length ? " haslow" : "";
-      var tb = el("button", (t === selDay ? "sel" : "") + tc);
-      tb.appendChild(document.createTextNode(DAYS[t])); tb.appendChild(el("br"));
-      tb.appendChild(document.createTextNode(addDays(viewStart, t).getDate()));
-      (function (i) { tb.onclick = function () { selDay = i; render(); }; })(t);
-      tabs.appendChild(tb);
-    }
-    for (var d = 0; d < 7; d++) {
-      var date = addDays(viewStart, d);
-      var col = el("div", "day" + (iso(date) === todayIso ? " today" : "") + (d === selDay ? " sel" : ""));
-      col.dataset.day = d;
-      col.appendChild(el("h3", null, fmt(date)));
-      if (highCount(d) > 1) col.appendChild(el("div", "warn", "⚠ Two high sessions on one day. Move one."));
-      else if (isHigh(d) && ((d > 0 && isHigh(d - 1)) || (d < 6 && isHigh(d + 1)))) col.appendChild(el("div", "warn", "⚠ High days back-to-back. Make one a low day."));
-      if (!byDay[d].length) col.appendChild(el("div", "rest", "Rest / off"));
+    const byDay = sessionsByDay(plan);
+    const todayIso = iso(new Date());
 
-      byDay[d].forEach(function (x) { col.appendChild(card(x)); });
+    $("days").innerHTML = byDay.map((s, i) => {
+      const date = addDays(viewStart, i);
+      const type = s ? s.type : "rest";
+      const cls = [type, i === selDay ? "sel" : "", iso(date) === todayIso ? "today" : "", isDayDone(date, s) ? "alldone" : ""].join(" ");
+      return '<button type="button" data-i="' + i + '" class="' + cls + '">' + DAYS[i] + "<b>" + date.getDate() + '</b><span class="dot"></span></button>';
+    }).join("");
 
-      // drag and drop target
-      col.addEventListener("dragover", function (e) { e.preventDefault(); this.classList.add("over"); });
-      col.addEventListener("dragleave", function () { this.classList.remove("over"); });
-      col.addEventListener("drop", function (e) {
-        e.preventDefault(); this.classList.remove("over");
-        var key = e.dataTransfer.getData("text/plain"); if (key) setDay(key, +this.dataset.day);
-      });
-      weekEl.appendChild(col);
-    }
+    // gym/track mix for the week
+    const picks = byDay.map((s, i) => s && s.track ? choiceFor(addDays(viewStart, i), s) : null).filter(Boolean);
+    const g = picks.filter((x) => x === "gym").length, t = picks.length - g;
+    $("mix").textContent = picks.length ? "This week: " + t + " track, " + g + " gym" + (g === 0 && plan.kind !== "taper" && plan.kind !== "race" ? " — try to get one gym day in for your legs." : "") : "";
+
+    renderDay(byDay, plan);
   }
 
-  function card(x) {
-    var s = x.s;
-    var c = el("div", "card " + s.type);
-    c.draggable = true;
-    c.addEventListener("dragstart", function (e) { e.dataTransfer.setData("text/plain", x.key); });
-    c.appendChild(el("div", "tag", (s.type === "high" ? "Hard" : s.type === "low" ? "Easy" : "Race") + (s.loc ? " · " + s.loc : "")));
-    c.appendChild(el("div", "t", s.title));
-    if (x.moved) c.appendChild(el("div", "moved", "Moved from " + DAYS[s.day]));
+  function renderDay(byDay, plan) {
+    const date = addDays(viewStart, selDay);
+    const s = byDay[selDay];
+    const box = $("day");
 
-    var det = el("details");
-    if (mq.matches) det.open = true;
-    det.appendChild(el("summary", null, "Workout"));
-    s.blocks.forEach(function (b) {
-      if (b.h) det.appendChild(el("h4", null, b.h));
-      var ul = el("ul");
-      b.items.forEach(function (i) {
-        var li = el("li"), parts = i.split(" | ");
-        if (parts.length > 1) { li.appendChild(el("b", null, parts[0])); li.appendChild(el("span", "dose", parts[1])); }
-        else li.textContent = i;
-        ul.appendChild(li);
+    if (plan.kind === "before" || plan.kind === "over") {
+      box.innerHTML = '<div class="band rest"><div class="kind">' + esc(DAYS_LONG[selDay]) + '</div><div class="focus">' + esc(plan.label) + '</div><p class="why">' + esc(plan.sub || "Use the arrows to go to a week inside the plan.") + "</p></div>";
+      return;
+    }
+
+    if (!s) {
+      box.innerHTML = '<div class="band rest"><div class="kind">' + esc(DAYS_LONG[selDay]) + ' · Rest day</div><div class="focus">Rest</div><p class="why">Rest is when you actually get faster.</p></div>' +
+        '<div class="restmsg"><ul><li>Walk, stretch, or play something easy for fun</li><li>Sleep 8–9 hours</li><li>Eat real meals</li></ul></div>';
+      return;
+    }
+
+    const kindWord = { high: "Hard day", low: "Easy day", race: "Race", rest: "Off" }[s.type];
+    let html = '<div class="band ' + s.type + '"><div class="kind">' + esc(DAYS_LONG[selDay] + " · " + kindWord) + '</div><div class="focus">' + esc(s.focus) + '</div><p class="why">' + esc(s.why) + "</p></div>";
+
+    if (!s.track) {
+      box.innerHTML = html + '<div class="restmsg">' + (s.type === "race" ? "<ul><li>Eat what you always eat before a race</li><li>Same warm-up as practice</li><li>Have fun</li></ul>" : "<ul><li>Walk and stretch</li><li>Sleep and eat well</li></ul>") + "</div>";
+      return;
+    }
+
+    const choice = choiceFor(date, s);
+    const v = s[choice];
+    const key = iso(date);
+
+    html += '<div class="choose" role="group" aria-label="Track or gym">' +
+      ["track", "gym"].map((c) => '<button type="button" data-choice="' + c + '" class="' + (c === choice ? "on" : "") + '" aria-pressed="' + (c === choice) + '">' + (c === "track" ? "Track" : "Gym") + "<span>" + (s.suggest === c ? "suggested" : "&nbsp;") + "</span></button>").join("") +
+      "</div>";
+
+    const warm = s.type === "low" ? WARM_EASY : choice === "track" ? WARM_TRACK : WARM_GYM;
+    html += '<div class="session"><div class="stitle">' + esc(v.title) + "</div>" +
+      '<details class="warm"><summary>Warm-up first (' + (s.type === "low" ? "5" : "10–15") + " min)</summary><ul>" + warm.map((w) => "<li>" + esc(w) + "</li>").join("") + "</ul></details>";
+
+    let i = 0;
+    v.blocks.forEach((b) => {
+      if (b.h) html += '<div class="bh">' + esc(b.h) + "</div>";
+      b.items.forEach((item) => {
+        const [name, dose] = item.split(" | ");
+        const id = key + "|" + choice + "|" + i;
+        const how = howTo(name);
+        html += '<div class="step' + (done[id] ? " done" : "") + '" data-id="' + esc(id) + '">' +
+          '<button type="button" class="tick" aria-label="Mark done" aria-pressed="' + !!done[id] + '">✓</button>' +
+          '<div><div class="name">' + esc(name) + "</div>" + (dose ? '<div class="dose">' + doseHTML(dose) + "</div>" : "") + "</div>" +
+          (how ? '<button type="button" class="info" aria-label="How to do it">i</button><div class="explain" hidden>' + esc(how) + "</div>" : "<span></span>") +
+          "</div>";
+        i++;
       });
-      det.appendChild(ul);
     });
-    c.appendChild(det);
+    if (v.tip) html += '<div class="tip">' + esc(v.tip) + "</div>";
+    html += "</div>";
 
-    var mv = el("div", "move");
-    mv.appendChild(document.createTextNode("Day: "));
-    var sel = el("select");
-    DAYS.forEach(function (dn, i) {
-      var o = el("option", null, dn); o.value = i;
-      if (i === (x.key in overrides ? overrides[x.key] : s.day)) o.selected = true;
-      sel.appendChild(o);
-    });
-    sel.addEventListener("change", function () { selDay = +sel.value; setDay(x.key, +sel.value); });
-    mv.appendChild(sel);
-    c.appendChild(mv);
-    return c;
+    // what tomorrow is
+    const next = byDay[selDay + 1];
+    if (selDay < 6) {
+      const word = !next ? "rest" : next.type === "high" ? "a hard day (" + next.focus.toLowerCase() + ")" : next.type === "low" ? "an easy day" : next.type === "race" ? "race day" : "rest";
+      html += '<p class="next">Tomorrow is ' + esc(word) + ".</p>";
+    }
+
+    box.innerHTML = html;
   }
+
+  /* ---------------- events ---------------- */
+
+  $("days").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-i]");
+    if (!b) return;
+    selDay = +b.dataset.i;
+    render();
+  });
+
+  $("day").addEventListener("click", (e) => {
+    const c = e.target.closest("button[data-choice]");
+    if (c) {
+      choices[iso(addDays(viewStart, selDay))] = c.dataset.choice;
+      save("speed.choices", choices);
+      render();
+      return;
+    }
+    const step = e.target.closest(".step");
+    if (!step) return;
+    if (e.target.closest(".info")) {
+      const ex = step.querySelector(".explain");
+      if (ex) ex.hidden = !ex.hidden;
+      return;
+    }
+    if (e.target.closest(".tick") || e.target.closest(".name") || e.target.closest(".dose")) {
+      const id = step.dataset.id;
+      if (done[id]) delete done[id]; else done[id] = true;
+      save("speed.done", done);
+      step.classList.toggle("done", !!done[id]);
+      render();
+    }
+  });
+
+  $("prev").onclick = () => { viewStart = addDays(viewStart, -7); selDay = 0; render(); };
+  $("next").onclick = () => { viewStart = addDays(viewStart, 7); selDay = 0; render(); };
+
+  const goToday = () => {
+    viewStart = monday(new Date());
+    selDay = (new Date().getDay() + 6) % 7;
+    if (viewStart < parseISO(startStr)) { viewStart = monday(parseISO(startStr)); selDay = 0; }
+    render();
+  };
+
+  $("gearBtn").onclick = () => {
+    $("settings").hidden = !$("settings").hidden;
+    if (!$("settings").hidden) $("settings").scrollIntoView({ behavior: "smooth" });
+  };
+  $("todayBtn").onclick = () => { goToday(); window.scrollTo(0, 0); };
+
+  $("contest").value = contestStr;
+  $("start").value = startStr;
+
+  $("contest").addEventListener("change", () => {
+    contestStr = $("contest").value;
+    save("shPlan.contest", contestStr);
+    syncUrl(); render();
+  });
+  $("start").addEventListener("change", () => {
+    if (!$("start").value) return;
+    startStr = iso(monday(parseISO($("start").value)));
+    $("start").value = startStr;
+    save("shPlan.start", startStr);
+    syncUrl(); goToday();
+  });
+
+  $("welcomeGo").onclick = () => {
+    if (!$("welcomeDate").value) { $("welcomeDate").focus(); return; }
+    contestStr = $("welcomeDate").value;
+    $("contest").value = contestStr;
+    save("shPlan.contest", contestStr);
+    save("shPlan.start", startStr);
+    syncUrl(); goToday();
+  };
+
+  $("resetBtn").onclick = () => {
+    for (let d = 0; d < 7; d++) {
+      const p = iso(addDays(viewStart, d)) + "|";
+      Object.keys(done).forEach((k) => { if (k.indexOf(p) === 0) delete done[k]; });
+    }
+    save("speed.done", done);
+    render();
+  };
+
+  $("shareBtn").onclick = () => {
+    const u = new URL(location.href.split("?")[0]);
+    if (contestStr) u.searchParams.set("contest", contestStr);
+    u.searchParams.set("start", startStr);
+    const inp = $("shareUrl");
+    inp.value = u.toString();
+    inp.hidden = false;
+    inp.select();
+    try { navigator.clipboard.writeText(inp.value); $("shareBtn").textContent = "Copied!"; setTimeout(() => { $("shareBtn").textContent = "Copy share link"; }, 1500); } catch (e) {}
+  };
+
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") render(); });
 
   render();
 })();
