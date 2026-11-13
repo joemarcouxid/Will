@@ -201,12 +201,12 @@
     <h2 style="margin-top:18px">How to read this</h2>
     <ul class="key">
       <li><b><span class="sw" style="background:var(--hard)"></span>Hard day</b> Go all-out, rest fully between reps. Never two in a row.</li>
-      <li><b><span class="sw" style="background:var(--easy)"></span>Easy day</b> Stay relaxed. You should finish feeling better than you started.</li>
+      <li><b><span class="sw" style="background:var(--easy)"></span>Easy day</b> Keep it relaxed. You should be able to talk the whole time.</li>
       <li><b>Track or Gym</b> Pick one each day. The suggested one is marked, but either works.</li>
       <li><b>4 × 20 m</b> 4 sprints of 20 meters.</li>
       <li><b>3 sets of 8</b> Do 8 reps, rest, three times.</li>
-      <li><b>Leave 2 in the tank</b> Stop when you could still do 2 more good reps. Pick a weight where that's true.</li>
-      <li><b>Rest 4 min</b> Really rest the full time. Short rest on sprints makes you slower, not tougher.</li>
+      <li><b>Leave 2 in the tank</b> Stop when you could still do 2 more good reps. </li>
+      <li><b>Rest 4 min</b> Take the full rest. Sprints are only useful if each one is fast.</li>
       <li><b>i</b> Tap it on any exercise for how to do it.</li>
       <li><b>Time it</b> Write your time in the box. The app keeps your best.</li>
       <li><b>Missed a day?</b> Open the workout you want and tap "Make this today's workout". The rest of the week shifts so two hard days never land back to back.</li>
@@ -262,40 +262,40 @@
   // Matched against the exercise name, first match wins (so order matters).
 
   const HOW = [
-    ["flying", "Run 30 m to build up speed, then sprint the next 20 m all-out. Only the fast part counts. Have someone time the fast part and write it down."],
-    ["sprint-float-sprint", "Sprint 20 m, then hold that speed but relax for 20 m (float), then sprint the last 20 m. Teaches you to stay fast and loose."],
+    ["flying", "Run 30 m to build up speed, then sprint the next 20 m all-out. If someone can time the 20 m, write it down."],
+    ["sprint-float-sprint", "Sprint 20 m, then hold that speed but relax for 20 m (float), then sprint the last 20 m."],
     ["mini hurdle", "Set 8–10 mini hurdles (or cones) about 6.5–7 ft apart. Run through them fast and tall, quick feet, one step between each."],
     ["release run", "Wear the Activator belt. A partner holds it and resists while you drive for 10 m, then lets go and you sprint 20 m more."],
-    ["exergenie sprints, heavy", "ExerGenie line clipped to your belt, set heavy enough that you move at about half your normal speed. Stay low, push the track back hard. Rest fully — this is strength work."],
-    ["resisted sprints, light", "ExerGenie or Activator belt set light. You should still look like a sprinter. If it turns into a slow march, it's too heavy."],
-    ["free sprints", "Same distance, no resistance, straight after the resisted reps. You'll feel fast — that's the point."],
+    ["exergenie sprints, heavy", "ExerGenie line clipped to your belt, set heavy enough that you move at about half your normal speed. Stay low and push hard. Take the full rest."],
+    ["resisted sprints, light", "ExerGenie or Activator belt set light. If you're slowing down to a march, it's too heavy."],
+    ["free sprints", "Same distance, no resistance, straight after the resisted reps. You'll probably feel quick."],
     ["crouch start", "Three-point start: one hand on the ground, feet staggered. Push out low and let your body rise naturally over the first 10–15 m."],
-    ["bend run", "Start on the curve of the track and run into the straight — that's how the 200 is run. Lean slightly from your ankles into the turn."],
+    ["bend run", "Start on the curve of the track and run into the straight. Lean slightly into the turn."],
     ["fast 60", "Sprint 60 m from a standing start at about 95%: fast, but relaxed in the face and shoulders."],
-    ["fast 80", "Sprint 80 m at about 95%: fast, but relaxed. Hold your form to the end."],
-    ["150", "Sprint at about 95%, starting on the curve. Hold form to the line. Full rest between."],
-    ["200 practice", "Run a 200 like a race, at about 95%. Time it. This is race practice."],
-    ["easy 100", "Run on grass at about two-thirds effort — smooth, not sprinting. Walk back between. You should be able to talk right after."],
-    ["build-up", "Start jogging and smoothly speed up to about 90% by the end. Never strain."],
+    ["fast 80", "Sprint 80 m at about 95%: fast, but relaxed."],
+    ["150", "Start on the curve and run about 95%. Take the full rest."],
+    ["200 practice", "Run a 200 at about 95% and time it."],
+    ["easy 100", "Run on grass at about two-thirds effort — smooth, not sprinting. Walk back between. You should be able to talk right after each one."],
+    ["build-up", "Start jogging and smoothly speed up to about 90% by the end."],
     ["bike or rower sprint", "On a bike, air bike or rower: go as hard as you possibly can for the time, then pedal or row very easy until the next one."],
     ["bike or rower", "Easy pace the whole time. You should be able to talk."],
     ["hurdle mobility", "Set up 5–6 hurdles. Step over them sideways (overs), then duck under (unders). Slow and controlled."],
     ["broad jump", "Two-foot jump forward as far as you can. Land softly and stick it."],
     ["triple jump", "Standing start, then hop, step and jump. Land on both feet."],
-    ["hurdle hop", "Two-foot hops over 4–6 low hurdles (or cones) in a row. Spend as little time on the ground as possible."],
+    ["hurdle hop", "Two-foot hops over 4–6 low hurdles (or cones) in a row. Bounce off the ground quickly."],
     ["single-leg hop", "Hop forward on one leg, landing softly each time. Then switch legs."],
     ["pogo", "Small, quick bounces on the balls of your feet, knees nearly straight. Like a pogo stick."],
     ["ankle hop", "Small, quick bounces on the balls of your feet, knees nearly straight. Like a pogo stick."],
-    ["tuck jump", "Jump straight up and pull your knees to your chest. Land softly, reset, repeat."],
+    ["tuck jump", "Jump straight up and pull your knees to your chest. Land softly."],
     ["bounds", "Big exaggerated running strides, pushing off each leg for distance. Stay tall."],
-    ["drop + stick", "Step off a low box, land on both feet and freeze. Teaches landing."],
+    ["drop + stick", "Step off a low box, land on both feet and hold still for a second."],
     ["box jump", "Jump up onto a box, land softly, step down. Jumping fast matters more than box height."],
-    ["med-ball", "Throw a medicine ball as far as you can — explode with your hips and legs, not just your arms."],
+    ["med-ball", "Throw the medicine ball as far as you can, using your legs and hips, not just your arms."],
     ["back squat", "Bar on your upper back, feet shoulder-width. Sit down until your thighs are at least parallel, then drive up. Use the safety pins."],
-    ["trap-bar jump", "Hold a light trap (hex) bar and jump as high as you can. Land softly. Light weight, fast jump."],
+    ["trap-bar jump", "Hold a light trap (hex) bar and jump as high as you can. Land softly. "],
     ["trap-bar deadlift", "Stand inside the hex bar, chest up, back flat, drive through the floor to stand up."],
     ["split squat", "One foot forward, back foot up on a bench. Lower until your back knee nearly touches, then drive up."],
-    ["kettlebell swing", "Hinge at the hips, swing the bell between your legs, then snap your hips forward so it floats to chest height. Power from the hips, not the arms."],
+    ["kettlebell swing", "Hinge at the hips, swing the bell between your legs, then snap your hips forward so it floats to chest height. "],
     ["glute bridge", "Lie on your back, feet flat. Drive your hips up and squeeze your glutes at the top."],
     ["calf raise", "Up on your toes, then lower slowly for 3 seconds. Do them on a step for more range."],
     ["rdl", "Romanian deadlift: knees soft, push your hips back, slide the bar down your thighs until you feel the hamstrings, stand back up."],
@@ -430,7 +430,7 @@
           "Single-leg glute bridge | " + B.I(3) + " sets of 10 each",
           "Calf raise | 3 sets of 12 · slow down"
         ] }
-      ], tip: B.weightNote + " Gym can't replace sprinting — get to the track for this day when you can." };
+      ], tip: B.weightNote + " The track version is better for this day if you can get there." };
     } else if (k === "strength") {
       const pct = ["85%", "87%", "90%"][ph.n - 1];
       accTrack = { title: "Starts", blocks: [
@@ -460,7 +460,7 @@
         { h: "Lift", items: ["Trap-bar jump squat | 3 × 3 · light", "Back squat | 2 sets of 3 · about 80% · fast"] }
       ] };
     }
-    out.push({ day: 0, type: "high", focus: "Acceleration", why: "Getting out fast. The first 30 m of every race.", track: accTrack, gym: accGym, suggest: k === "build" ? "gym" : "track" });
+    out.push({ day: 0, type: "high", focus: "Acceleration", why: "Starts and the first 30 meters of the race.", track: accTrack, gym: accGym, suggest: k === "build" ? "gym" : "track" });
 
     /* ===== TUESDAY + THURSDAY · EASY ===== */
     const easySets = (k === "build" && ph.h !== 1 && ph.h !== 6) || k === "base" ? 2 : 1;
@@ -469,7 +469,7 @@
     const easyCardio = (mins) => "Bike or rower | " + mins + " min easy · you could hold a conversation";
     const upperLight = k === "taper" ? ["Push-ups | 2 sets of 10", "Pull-ups | 2 sets of 5", "Plank | 2 × 30 s"] : null;
 
-    out.push({ day: 1, type: "low", focus: "Easy day", why: "Recover from yesterday so tomorrow can be fast. Nothing hard today.",
+    out.push({ day: 1, type: "low", focus: "Easy day", why: "Nice and easy today so you're fresh tomorrow.",
       track: { title: "Easy running + circuit", blocks: [{ h: "Run", items: [tempo(easySets, easyReps)] }, { h: "Circuit", items: CIRCUIT_A }] },
       gym: { title: "Easy cardio + upper body", blocks: [{ h: "Cardio", items: [easyCardio(k === "taper" ? 10 : 15)] }, { h: "Upper body, light", items: upperLight || UPPER_A(upN) }] },
       suggest: "gym" });
@@ -497,7 +497,7 @@
           "Walking lunge | " + B.C(2) + " sets of 10 each leg · " + T(B.aL),
           "Calf raise | 3 sets of 12 · slow down"
         ] }
-      ], tip: "Top speed only gets trained by sprinting. This keeps your legs springy and hamstrings strong, but do the track version whenever you can." };
+      ], tip: "Top speed only improves by sprinting, so do the track version when you can. This one keeps your legs and hamstrings strong." };
     } else if (k === "strength") {
       mvTrack = { title: "Top speed", blocks: [
         { h: "Sprints", items: ["Mini hurdle runs | 4 runs", "Flying " + (ph.n >= 2 ? "30" : "20") + " m | 3 reps · rest 8 min · time it", "Sprint-float-sprint | 2 × 60 m · rest 8 min"] },
@@ -506,14 +506,14 @@
       mvGym = { title: "Legs: bounce + hamstrings", blocks: [
         { h: "Jumps", items: ["Pogo hops | 3 × 10", "Box jumps | 3 × 3"] },
         { h: "Lift", items: ["Trap-bar jump squat | 4 sets of 3 · light · jump high", "RDL | 3 sets of 5 · " + T(2), "Nordics | 2 sets of 4", "Calf raise | 2 sets of 12"] }
-      ], tip: "Top speed only gets trained by sprinting. Do the track version whenever you can." };
+      ], tip: "Top speed only improves by sprinting, so do the track version when you can." };
     } else {
       mvTrack = { title: "Top speed, short", blocks: [{ h: "Sprints", items: ["Mini hurdle runs | 3 runs", "Flying 20 m | 2 reps · rest 6 min · time it"] }] };
       mvGym = { title: "Light + springy", blocks: [{ h: "Jumps", items: ["Pogo hops | 2 × 10", "Box jumps | 2 × 3"] }, { h: "Lift", items: ["Trap-bar jump squat | 2 × 3 · light", "Nordics | 1 set of 3"] }] };
     }
-    out.push({ day: 2, type: "high", focus: "Max speed", why: "Your top speed — the middle of the 100 and the straight of the 200.", track: mvTrack, gym: mvGym, suggest: "track" });
+    out.push({ day: 2, type: "high", focus: "Max speed", why: "Running as fast as you can, with lots of rest in between.", track: mvTrack, gym: mvGym, suggest: "track" });
 
-    out.push({ day: 3, type: "low", focus: "Easy day", why: "Recover so Friday's 200 work can be your best.",
+    out.push({ day: 3, type: "low", focus: "Easy day", why: "Easy again today. Tomorrow is a hard one.",
       track: { title: "Easy running + mobility", blocks: [{ h: "Run", items: [tempo(easySets, easyReps)] }, { h: "Circuit", items: CIRCUIT_B }] },
       gym: { title: "Easy cardio + upper body", blocks: [{ h: "Cardio", items: [easyCardio(k === "taper" ? 10 : 15)] }, { h: "Upper body, light", items: upperLight || UPPER_B(upN) }] },
       suggest: "gym" });
@@ -553,13 +553,13 @@
     ];
     else seGym = [{ h: "Bike sprints", items: ["Bike or rower sprints | 3 × 20 s · 4 min easy between"] }];
 
-    out.push({ day: 4, type: "high", focus: "200 speed", why: "Holding your speed to the line. This is the 200, and the end of the 100.",
+    out.push({ day: 4, type: "high", focus: "200 speed", why: "Longer sprints, up to 200 m, with plenty of rest.",
       track: { title: "Speed endurance", blocks: [
         { h: "Sprints", items: seRuns },
         { h: "Cool down", items: ["Walk 400 m, then easy stretching | 10 min"] }
-      ], tip: "Hardest day of the week. Rest the full time between runs. If you're clearly slower than usual, stop — don't grind." },
+      ], tip: "This is the toughest day of the week. Take the full rest. If you're a lot slower than usual, call it a day." },
       gym: { title: "Bike sprints + legs", blocks: seGym,
-        tip: "The 200 is run on a track. This keeps your engine and legs working, but do the track version whenever you can." },
+        tip: "The track version is better for the 200. Use this one if you can't get to a track." },
       suggest: "track" });
 
     return out;
@@ -567,22 +567,22 @@
 
   // Race week, built backward from the race date.
   const COMP = [
-    { off: -5, type: "high", focus: "Last speed day", why: "Last fast work before the race. Short and sharp.",
+    { off: -5, type: "high", focus: "Last speed day", why: "Your last fast workout before the race. Keep it short.",
       track: { title: "Starts + flys", blocks: [{ h: "Sprints", items: ["Crouch starts | 3 × 30 m · rest 4 min", "Flying 20 m | 2 reps · rest 6 min · time it"] }] },
       gym: { title: "Light + fast", blocks: [{ h: "Jumps", items: ["Box jumps | 3 × 3"] }, { h: "Lift", items: ["Trap-bar jump squat | 2 × 3 · light"] }] }, suggest: "track" },
-    { off: -4, type: "low", focus: "Easy day", why: "Loosen up.",
+    { off: -4, type: "low", focus: "Easy day", why: "Just loosen up today.",
       track: { title: "Easy running", blocks: [{ h: "Run", items: ["Easy 100s on grass | 6 × 100 m · easy · walk back"] }] },
       gym: { title: "Easy bike", blocks: [{ h: "Cardio", items: ["Bike | 15–20 min easy"] }] }, suggest: "gym" },
-    { off: -3, type: "high", focus: "Quick starts", why: "A few fast starts to stay sharp. Done in 30 minutes.",
+    { off: -3, type: "high", focus: "Quick starts", why: "A few fast starts. About 30 minutes.",
       track: { title: "Quick starts", blocks: [{ h: "Sprints", items: ["Crouch starts | 4 × 20 m · rest 3 min"] }] },
       gym: { title: "Quick and light", blocks: [{ h: "Jumps", items: ["Box jumps | 2 × 3", "Broad jumps | 2 × 2"] }] }, suggest: "track" },
-    { off: -2, type: "low", focus: "Light day", why: "Feel bouncy, not tired.",
+    { off: -2, type: "low", focus: "Light day", why: "Light today so you're fresh.",
       track: { title: "Drills", blocks: [{ h: "", items: ["Drills + build-ups | warm-up, then 3 × 40 m build-ups"] }] },
       gym: { title: "Loosen up", blocks: [{ h: "", items: ["Bike | 10 min easy", "Leg swings + stretching | 10 min"] }] }, suggest: "track" },
-    { off: -1, type: "low", focus: "Pre-meet", why: "Wake the legs up. 40 minutes max.",
+    { off: -1, type: "low", focus: "Pre-meet", why: "A short practice to get your legs moving. 40 minutes at most.",
       track: { title: "Pre-meet", blocks: [{ h: "", items: ["Build-ups | 2 × 40 m", "Starts | 1–2 × 20 m, then go home"] }] },
       gym: { title: "Pre-meet", blocks: [{ h: "", items: ["Bike | 10 min easy", "Box jumps | 2 × 2, then go home"] }] }, suggest: "track" },
-    { off: 0, type: "race", focus: "RACE DAY", why: "Nothing new today. Warm up like you always do. Go get it." },
+    { off: 0, type: "race", focus: "RACE DAY", why: "Nothing new today. Warm up like you always do." },
     { off: 1, type: "rest", focus: "Off", why: "Walk, stretch, eat well." }
   ];
 
@@ -798,7 +798,7 @@
     }
 
     if (!s) {
-      box.innerHTML = '<div class="band rest"><div class="kind">' + esc(DAYS_LONG[selDay]) + ' · Rest day</div><div class="focus">Rest</div><p class="why">Rest is when you actually get faster.</p></div>' +
+      box.innerHTML = '<div class="band rest"><div class="kind">' + esc(DAYS_LONG[selDay]) + ' · Rest day</div><div class="focus">Rest</div><p class="why">Take the day off.</p></div>' +
         '<div class="restmsg"><ul><li>Walk, stretch, or play something easy for fun</li><li>Sleep 8–9 hours</li><li>Eat real meals</li></ul></div>';
       return;
     }
