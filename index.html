@@ -265,8 +265,10 @@
     ["flying", "Run 30 m to build up speed, then sprint the next 20 m all-out. Only the fast part counts. Have someone time the fast part and write it down."],
     ["sprint-float-sprint", "Sprint 20 m, then hold that speed but relax for 20 m (float), then sprint the last 20 m. Teaches you to stay fast and loose."],
     ["mini hurdle", "Set 8–10 mini hurdles (or cones) about 6.5–7 ft apart. Run through them fast and tall, quick feet, one step between each."],
-    ["release run", "A partner holds a towel or band around your waist and leans back while you drive for 10 m, then lets go and you sprint 20 m more."],
-    ["hill sprint", "Find a hill that isn't too steep. Sprint up all-out, walk down slowly. The hill makes you push low and hard like the start of a race."],
+    ["release run", "Wear the Activator belt. A partner holds it and resists while you drive for 10 m, then lets go and you sprint 20 m more."],
+    ["exergenie sprints, heavy", "ExerGenie line clipped to your belt, set heavy enough that you move at about half your normal speed. Stay low, push the track back hard. Rest fully — this is strength work."],
+    ["resisted sprints, light", "ExerGenie or Activator belt set light. You should still look like a sprinter. If it turns into a slow march, it's too heavy."],
+    ["free sprints", "Same distance, no resistance, straight after the resisted reps. You'll feel fast — that's the point."],
     ["crouch start", "Three-point start: one hand on the ground, feet staggered. Push out low and let your body rise naturally over the first 10–15 m."],
     ["bend run", "Start on the curve of the track and run into the straight — that's how the 200 is run. Lean slightly from your ankles into the turn."],
     ["fast 60", "Sprint 60 m from a standing start at about 95%: fast, but relaxed in the face and shoulders."],
@@ -402,11 +404,17 @@
       const jumps = p.plyo === "inplace"
         ? ["Pogo hops | 3 × 10", "Broad jumps | 3 × 3"]
         : ["Broad jumps | 4 × 3", "Standing triple jump | 3 × 2"];
-      accTrack = { title: "Starts + hills", blocks: [
-        { h: "Sprints", items: [
-          "Hill sprints | " + B.r(6) + " × 20 m · all-out · walk down + rest 3 min",
+      // Flat track: resisted sprints do the job hills would. Heavy resistance
+      // only in the build weeks, followed by free sprints (contrast).
+      accTrack = { title: "Starts + resisted sprints", blocks: [
+        { h: "Sprints", items: p.heavy ? [
+          "ExerGenie sprints, heavy | " + p.heavy + " × 15 m · about half your normal speed · rest 3 min",
+          "Free sprints | 3 × 20 m · right after, no resistance · rest 3 min",
+          "Crouch starts | " + B.r(3) + " × 20 m · rest 3 min"
+        ] : [
+          "Resisted sprints, light (ExerGenie or Activator belt) | " + B.r(5) + " × 20 m · rest 3 min",
           "Crouch starts | " + B.r(4) + " × 20 m · rest 3 min"
-        ].concat(p.heavy ? ["Release runs | " + B.r(3) + " × 30 m · rest 4 min"] : []) },
+        ] },
         { h: "Jumps + throws", items: jumps.concat(["Med-ball throw forward | 6 throws"]) }
       ] };
       accGym = { title: "Legs: push power", blocks: [
